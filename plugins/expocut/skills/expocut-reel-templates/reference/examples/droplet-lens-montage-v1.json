@@ -1,0 +1,617 @@
+{
+  "schemaVersion": "1.1",
+  "mode": "template",
+  "id": "droplet-lens-montage-v1",
+  "name": "Droplet Lens Montage",
+  "description": "Four landscape beats joined by a water-droplet reveal. A blob falls, lands off-centre, and the next clip bursts open from exactly where it hit \u2014 the rim bending the picture like a lens.",
+  "category": "Travel",
+  "aspectRatio": "9:16",
+  "durationMs": 5200,
+  "slotCounts": {
+    "video": 4,
+    "text": 1,
+    "audio": 1
+  },
+  "slots": [
+    {
+      "id": "s_mark",
+      "label": "Watermark",
+      "kind": "text",
+      "default": "WANDERLUST"
+    },
+    {
+      "id": "s_clip1",
+      "label": "Clip 1",
+      "kind": "video",
+      "required": true,
+      "preferredDurationMs": 1300,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://videos.pexels.com/video-files/27781904/12223100_360_640_30fps.mp4",
+        "remoteUrl": "https://videos.pexels.com/video-files/27781904/12223100_360_640_30fps.mp4",
+        "width": 360,
+        "height": 640,
+        "durationMs": 8000
+      }
+    },
+    {
+      "id": "s_clip2",
+      "label": "Clip 2",
+      "kind": "video",
+      "required": true,
+      "preferredDurationMs": 1300,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://videos.pexels.com/video-files/35255053/14935658_540_960_30fps.mp4",
+        "remoteUrl": "https://videos.pexels.com/video-files/35255053/14935658_540_960_30fps.mp4",
+        "width": 540,
+        "height": 960,
+        "durationMs": 8000
+      }
+    },
+    {
+      "id": "s_clip3",
+      "label": "Clip 3",
+      "kind": "video",
+      "required": true,
+      "preferredDurationMs": 1300,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://videos.pexels.com/video-files/29547544/12718932_540_960_30fps.mp4",
+        "remoteUrl": "https://videos.pexels.com/video-files/29547544/12718932_540_960_30fps.mp4",
+        "width": 540,
+        "height": 960,
+        "durationMs": 8000
+      }
+    },
+    {
+      "id": "s_clip4",
+      "label": "Clip 4",
+      "kind": "video",
+      "required": true,
+      "preferredDurationMs": 1300,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://videos.pexels.com/video-files/3371612/3371612-sd_540_960_30fps.mp4",
+        "remoteUrl": "https://videos.pexels.com/video-files/3371612/3371612-sd_540_960_30fps.mp4",
+        "width": 540,
+        "height": 960,
+        "durationMs": 8000
+      }
+    },
+    {
+      "id": "s_music",
+      "label": "Music",
+      "kind": "audio",
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://cdn.freesound.org/previews/208/208520_2305278-hq.mp3",
+        "remoteUrl": "https://cdn.freesound.org/previews/208/208520_2305278-hq.mp3"
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "id": "t_mark",
+      "type": "overlay",
+      "name": "Watermark",
+      "trackIndex": 0
+    },
+    {
+      "id": "t_drop1",
+      "type": "overlay",
+      "name": "Droplet 1",
+      "trackIndex": 1
+    },
+    {
+      "id": "t_drop2",
+      "type": "overlay",
+      "name": "Droplet 2",
+      "trackIndex": 2
+    },
+    {
+      "id": "t_drop3",
+      "type": "overlay",
+      "name": "Droplet 3",
+      "trackIndex": 3
+    },
+    {
+      "id": "t_clips",
+      "type": "video",
+      "name": "Clips",
+      "trackIndex": 4
+    },
+    {
+      "id": "t_music",
+      "type": "audio",
+      "name": "Music",
+      "trackIndex": 5
+    }
+  ],
+  "layers": [
+    {
+      "id": "L_mark",
+      "type": "text",
+      "name": "Watermark",
+      "trackIndex": 0,
+      "slotRef": "s_mark",
+      "startTime": 120,
+      "duration": 5080,
+      "content": "",
+      "position": {
+        "x": 0,
+        "y": 88.5
+      },
+      "textAlign": "center",
+      "textFullWidth": true,
+      "fontFamily": "didot",
+      "fontWeight": "400",
+      "italic": true,
+      "fontSize": 13,
+      "letterSpacing": 4,
+      "textTransform": "uppercase",
+      "textColor": "#FFFFFF",
+      "textShadowColor": "#000000",
+      "textShadowBlur": 10,
+      "textAnimInId": "in-tw-classic",
+      "textAnimInDuration": 900,
+      "rotation": 0,
+      "scale": 1
+    },
+    {
+      "id": "L_drop1",
+      "type": "shape",
+      "name": "Droplet 1",
+      "trackIndex": 1,
+      "startTime": 600,
+      "duration": 450,
+      "content": "",
+      "canvasRelativeWidth": 7.0,
+      "canvasRelativeHeight": 3.94,
+      "position": {
+        "x": 15.5,
+        "y": 0.030000000000000027
+      },
+      "scale": 1,
+      "rotation": 0,
+      "shapeConfig": {
+        "type": "circle",
+        "fillStyle": "solid",
+        "fillColor": "#DCEEFF",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "opacity": 1,
+        "maskEnabled": false
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.x",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 15.5,
+                "out": {
+                  "type": "preset",
+                  "name": "easeIn"
+                }
+              },
+              {
+                "t": 200000,
+                "v": 46.5
+              },
+              {
+                "t": 380000,
+                "v": 77.5,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "transform.y",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 0.030000000000000027,
+                "out": {
+                  "type": "preset",
+                  "name": "easeIn"
+                }
+              },
+              {
+                "t": 200000,
+                "v": 24.03
+              },
+              {
+                "t": 380000,
+                "v": 67.03,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 0
+              },
+              {
+                "t": 110000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 360000,
+                "v": 1
+              },
+              {
+                "t": 430000,
+                "v": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_drop2",
+      "type": "shape",
+      "name": "Droplet 2",
+      "trackIndex": 2,
+      "startTime": 1900,
+      "duration": 450,
+      "content": "",
+      "canvasRelativeWidth": 7.0,
+      "canvasRelativeHeight": 3.94,
+      "position": {
+        "x": 66.5,
+        "y": 0.030000000000000027
+      },
+      "scale": 1,
+      "rotation": 0,
+      "shapeConfig": {
+        "type": "circle",
+        "fillStyle": "solid",
+        "fillColor": "#DCEEFF",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "opacity": 1,
+        "maskEnabled": false
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.x",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 66.5,
+                "out": {
+                  "type": "preset",
+                  "name": "easeIn"
+                }
+              },
+              {
+                "t": 200000,
+                "v": 49.5
+              },
+              {
+                "t": 380000,
+                "v": 34.5,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "transform.y",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 0.030000000000000027,
+                "out": {
+                  "type": "preset",
+                  "name": "easeIn"
+                }
+              },
+              {
+                "t": 200000,
+                "v": 24.03
+              },
+              {
+                "t": 380000,
+                "v": 53.03,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 0
+              },
+              {
+                "t": 110000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 360000,
+                "v": 1
+              },
+              {
+                "t": 430000,
+                "v": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_drop3",
+      "type": "shape",
+      "name": "Droplet 3",
+      "trackIndex": 3,
+      "startTime": 3200,
+      "duration": 450,
+      "content": "",
+      "canvasRelativeWidth": 7.0,
+      "canvasRelativeHeight": 3.94,
+      "position": {
+        "x": 26.5,
+        "y": 0.030000000000000027
+      },
+      "scale": 1,
+      "rotation": 0,
+      "shapeConfig": {
+        "type": "circle",
+        "fillStyle": "solid",
+        "fillColor": "#DCEEFF",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "opacity": 1,
+        "maskEnabled": false
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.x",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 26.5,
+                "out": {
+                  "type": "preset",
+                  "name": "easeIn"
+                }
+              },
+              {
+                "t": 200000,
+                "v": 43.5
+              },
+              {
+                "t": 380000,
+                "v": 58.5,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "transform.y",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 0.030000000000000027,
+                "out": {
+                  "type": "preset",
+                  "name": "easeIn"
+                }
+              },
+              {
+                "t": 200000,
+                "v": 16.03
+              },
+              {
+                "t": 380000,
+                "v": 38.03,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 0,
+                "v": 0
+              },
+              {
+                "t": 110000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 360000,
+                "v": 1
+              },
+              {
+                "t": 430000,
+                "v": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_clip1",
+      "type": "video",
+      "name": "Clip 1",
+      "trackIndex": 4,
+      "slotRef": "s_clip1",
+      "startTime": 0,
+      "duration": 1300,
+      "content": "",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "stretchToCanvas": true,
+      "fitMode": "fill"
+    },
+    {
+      "id": "L_clip2",
+      "type": "video",
+      "name": "Clip 2",
+      "trackIndex": 4,
+      "slotRef": "s_clip2",
+      "startTime": 1300,
+      "duration": 1300,
+      "content": "",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "stretchToCanvas": true,
+      "fitMode": "fill"
+    },
+    {
+      "id": "L_clip3",
+      "type": "video",
+      "name": "Clip 3",
+      "trackIndex": 4,
+      "slotRef": "s_clip3",
+      "startTime": 2600,
+      "duration": 1300,
+      "content": "",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "stretchToCanvas": true,
+      "fitMode": "fill"
+    },
+    {
+      "id": "L_clip4",
+      "type": "video",
+      "name": "Clip 4",
+      "trackIndex": 4,
+      "slotRef": "s_clip4",
+      "startTime": 3900,
+      "duration": 1300,
+      "content": "",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "stretchToCanvas": true,
+      "fitMode": "fill"
+    },
+    {
+      "id": "L_music",
+      "type": "audio",
+      "name": "Music",
+      "trackIndex": 5,
+      "slotRef": "s_music",
+      "startTime": 0,
+      "duration": 5200,
+      "content": "",
+      "position": {
+        "x": 50,
+        "y": 50
+      },
+      "scale": 1,
+      "rotation": 0
+    }
+  ],
+  "transitions": [
+    {
+      "id": "jt_cut1",
+      "trackId": "t_clips",
+      "fromLayerId": "L_clip1",
+      "toLayerId": "L_clip2",
+      "effectId": "wipe.iris",
+      "durationMs": 600,
+      "alignment": "center",
+      "ease": "out",
+      "params": {
+        "originX": 0.81,
+        "originY": 0.69,
+        "bulge": 0.85,
+        "softness": 0.1
+      }
+    },
+    {
+      "id": "jt_cut2",
+      "trackId": "t_clips",
+      "fromLayerId": "L_clip2",
+      "toLayerId": "L_clip3",
+      "effectId": "wipe.iris",
+      "durationMs": 600,
+      "alignment": "center",
+      "ease": "out",
+      "params": {
+        "originX": 0.38,
+        "originY": 0.55,
+        "bulge": 0.8,
+        "softness": 0.1
+      }
+    },
+    {
+      "id": "jt_cut3",
+      "trackId": "t_clips",
+      "fromLayerId": "L_clip3",
+      "toLayerId": "L_clip4",
+      "effectId": "wipe.iris",
+      "durationMs": 600,
+      "alignment": "center",
+      "ease": "out",
+      "params": {
+        "originX": 0.62,
+        "originY": 0.4,
+        "bulge": 0.9,
+        "softness": 0.1
+      }
+    }
+  ],
+  "previewVideoUri": "https://expocut.b-cdn.net/reels/assets/droplet-lens-montage-v1/preview.mp4",
+  "thumbnail": "https://expocut.b-cdn.net/reels/assets/droplet-lens-montage-v1/thumbnail.jpg"
+}

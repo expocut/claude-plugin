@@ -1,0 +1,37 @@
+{
+  "name": "expocut-plugins",
+  "owner": {
+    "name": "ExpoCut",
+    "url": "https://expocut.com"
+  },
+  "metadata": {
+    "description": "Official ExpoCut plugins for Claude Code",
+    "version": "0.1.0",
+    "repository": "https://github.com/expocut/claude-plugin"
+  },
+  "plugins": [
+    {
+      "name": "expocut",
+      "source": "./plugins/expocut",
+      "description": "Connect Claude Code to the ExpoCut video editor on your phone over local Wi-Fi: 260+ MCP tools to build, review and export videos, plus ExpoCut's editing skills.",
+      "version": "0.1.0",
+      "author": {
+        "name": "ExpoCut",
+        "url": "https://expocut.com"
+      },
+      "homepage": "https://expocut.com/mcp.html",
+      "category": "productivity",
+      "keywords": [
+        "expocut",
+        "video",
+        "reel maker",
+        "video template maker",
+        "video creator tools",
+        "video automation plugin",
+        "video-editor",
+        "mcp",
+        "mobile"
+      ]
+    }
+  ]
+}

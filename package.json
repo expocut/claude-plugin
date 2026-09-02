@@ -1,0 +1,15 @@
+{
+  "name": "@expocut/claude-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Claude Code marketplace + plugin that connects Claude Code to the ExpoCut in-app MCP server over the local network.",
+  "scripts": {
+    "test": "node --test plugins/expocut/bridge/test/*.test.mjs",
+    "validate": "claude plugin validate . && claude plugin validate plugins/expocut"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.1",
+  "mode": "template",
+  "id": "starter-4x5-v1",
+  "name": "Starter 4:5",
+  "description": "Minimal valid reel template — one photo slot, a headline, an SVG accent bar (unique gradient id), and music. Copy and build from here; replace the example.com placeholder URLs with your own hosted assets before publishing.",
+  "category": "For You",
+  "aspectRatio": "4:5",
+  "durationMs": 6000,
+  "slotCounts": { "image": 1, "text": 1, "audio": 1 },
+  "slots": [
+    {
+      "id": "s_photo",
+      "label": "Your photo",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://example.com/starter-4x5/sample.jpg",
+        "remoteUrl": "https://example.com/starter-4x5/sample.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_headline",
+      "label": "Headline",
+      "kind": "text",
+      "default": "YOUR HEADLINE"
+    },
+    {
+      "id": "s_music",
+      "label": "Music",
+      "kind": "audio",
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://example.com/starter-4x5/music.mp3",
+        "remoteUrl": "https://example.com/starter-4x5/music.mp3"
+      }
+    }
+  ],
+  "tracks": [
+    { "id": "t_head", "type": "overlay", "name": "Headline", "trackIndex": 0 },
+    { "id": "t_bar", "type": "image", "name": "Accent bar", "trackIndex": 1 },
+    { "id": "t_photo", "type": "image", "name": "Photo", "trackIndex": 2 },
+    { "id": "t_music", "type": "audio", "name": "Music", "trackIndex": 3 }
+  ],
+  "layers": [
+    {
+      "id": "L_headline",
+      "type": "text",
+      "name": "Headline",
+      "trackIndex": 0,
+      "slotRef": "s_headline",
+      "startTime": 300,
+      "duration": 5400,
+      "content": "YOUR HEADLINE",
+      "position": { "x": 0, "y": 78 },
+      "textAlign": "center",
+      "textFullWidth": true,
+      "fontFamily": "arial",
+      "fontWeight": "700",
+      "fontSize": 27,
+      "textColor": "#FFFFFF",
+      "letterSpacing": 1,
+      "rotation": 0,
+      "scale": 1,
+      "textAnimInId": "in-fade-up",
+      "textAnimOutId": "out-fade",
+      "textAnimInDuration": 700,
+      "textAnimOutDuration": 500,
+      "textShadowColor": "#000000",
+      "textShadowBlur": 12,
+      "textShadowOffsetX": 0,
+      "textShadowOffsetY": 3
+    },
+    {
+      "id": "L_bar",
+      "type": "image",
+      "name": "Accent bar",
+      "trackIndex": 1,
+      "startTime": 300,
+      "duration": 5400,
+      "content": "",
+      "svgContent": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 6'><defs><linearGradient id='barGrad_1' x1='0' y1='0' x2='1' y2='0'><stop offset='0%' stop-color='#F8D374'/><stop offset='100%' stop-color='#D99A28'/></linearGradient></defs><rect x='0' y='2' width='320' height='2' fill='url(#barGrad_1)'/></svg>",
+      "naturalWidth": 320,
+      "naturalHeight": 6,
+      "position": { "x": 30, "y": 74 },
+      "scale": 0.75,
+      "rotation": 0,
+      "fitMode": "contain",
+      "fadeInMs": 400,
+      "fadeOutMs": 400
+    },
+    {
+      "id": "L_photo",
+      "type": "image",
+      "name": "Photo",
+      "trackIndex": 2,
+      "slotRef": "s_photo",
+      "startTime": 0,
+      "duration": 6000,
+      "content": "https://example.com/starter-4x5/sample.jpg",
+      "position": { "x": 50, "y": 50 },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://example.com/starter-4x5/sample.jpg",
+        "kind": "cdn",
+        "sourceId": "starter-sample"
+      }
+    },
+    {
+      "id": "L_music",
+      "type": "audio",
+      "name": "Music",
+      "trackIndex": 3,
+      "slotRef": "s_music",
+      "startTime": 0,
+      "duration": 6000,
+      "content": "https://example.com/starter-4x5/music.mp3",
+      "position": { "x": 50, "y": 50 },
+      "scale": 1,
+      "volume": 0.7,
+      "fadeInMs": 800,
+      "fadeOutMs": 1200,
+      "remoteSource": {
+        "url": "https://example.com/starter-4x5/music.mp3",
+        "kind": "cdn",
+        "sourceId": "starter-music"
+      }
+    }
+  ],
+  "transitions": [],
+  "previewVideoUri": "https://example.com/starter-4x5/preview.mp4",
+  "thumbnail": "https://example.com/starter-4x5/thumbnail.jpg"
+}

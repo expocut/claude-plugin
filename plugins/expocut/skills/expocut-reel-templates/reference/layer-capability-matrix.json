@@ -1,0 +1,149 @@
+{
+  "_about": "Which fields are supported on which layer type in the exported MP4 (as opposed to the editor canvas). Machine-readable so validate-reel.mjs can enforce it.",
+  "_legend": {
+    "ok": "renders identically on the editor canvas AND in the exported MP4",
+    "canvasOnly": "renders on the canvas but NOT (or differently) in the export — never rely on it",
+    "exportOnly": "renders in the export but has no canvas preview — the canvas shows a placeholder/watermark",
+    "breaks": "not supported in the export for this layer type (renders blank or mis-sized). Never set it.",
+    "na": "not applicable to this layer type"
+  },
+  "_sizingRule": "Full-canvas media => stretchToCanvas:true + canvasRelativeWidth/Height:100. Positioned/grid photos => a media-fill SHAPE sized by canvasRelativeWidth/Height. Do NOT size a positioned IMAGE layer with scale+fitMode:contain — the export sizes it from baseWidth*scale (a 150-point base box in a 360-wide design canvas) and it comes out huge/blurry.",
+  "layerTypes": {
+    "text": {
+      "fields": {
+        "content": "ok", "textAlign": "ok", "textFullWidth": "ok", "fontFamily": "ok",
+        "fontWeight": "ok", "fontSize": "ok", "textColor": "ok", "letterSpacing": "ok",
+        "lineHeight": "ok", "textAnimInId": "ok", "textAnimOutId": "ok", "textAnimLoopId": "ok",
+        "textEffectId": "ok", "textStrokeColor": "ok", "textShadowColor": "ok",
+        "keyframes": "ok", "opacity": "ok", "slotRef": "ok",
+        "colorAdjust": "na", "videoEffects": "na", "canvasRelativeWidth": "na"
+      },
+      "notes": [
+        "textFullWidth:true => set position.x:0; only y matters. Free box => textFullWidth:false with a real x.",
+        "fontSize is canvas points ~ design_px * 0.366, NOT pixels.",
+        "Text must sit IN FRONT of full-canvas media or it is invisible — see zStack."
+      ]
+    },
+    "image.raster": {
+      "_desc": "image layer whose content is a photo URL (http/https/file)",
+      "fields": {
+        "content": "ok", "stretchToCanvas": "ok", "canvasRelativeWidth": "ok",
+        "canvasRelativeHeight": "ok", "fitMode": "ok", "naturalWidth": "ok", "naturalHeight": "ok",
+        "colorAdjust": "ok", "videoEffects": "ok", "filterId": "ok", "lut": "ok",
+        "keyframes": "ok", "transitionIn": "ok", "fadeInMs": "ok", "fadeOutMs": "ok",
+        "border": "ok", "cropRect": "ok", "opacity": "ok", "slotRef": "ok",
+        "scale": "canvasOnly"
+      },
+      "notes": [
+        "scale is 'canvasOnly' ONLY for positioned (non-stretch) layers: the export recomputes the box from baseWidth*scale using an editor-canvas-dependent base size, so it will not match. For stretchToCanvas layers scale is honoured in both.",
+        "A remote https content IS downloaded by the export pipeline. (A shape's remote fill is NOT — see shape.mediaFill.)"
+      ]
+    },
+    "image.svg": {
+      "_desc": "image layer with inline svgContent (backgrounds, stickers, plates, flashes)",
+      "fields": {
+        "svgContent": "ok", "naturalWidth": "ok", "naturalHeight": "ok", "scale": "ok",
+        "rotation": "ok", "stretchToCanvas": "ok", "canvasRelativeWidth": "ok",
+        "fitMode": "ok", "fadeInMs": "ok", "fadeOutMs": "ok", "opacity": "ok",
+        "colorAdjust": "canvasOnly", "videoEffects": "canvasOnly"
+      },
+      "notes": [
+        "EVERY <linearGradient>/<radialGradient> id must be unique across the WHOLE file — duplicate ids collide globally and one shape silently renders with no fill in the MP4.",
+        "Vector is the safe way to draw bars/plates/boxes/stickers; a wide raster gets forced into a near-square box."
+      ]
+    },
+    "shape.solid": {
+      "_desc": "shape layer with fillStyle solid/gradient (no media)",
+      "fields": {
+        "shapeConfig.fillColor": "ok", "shapeConfig.gradient": "ok", "canvasRelativeWidth": "ok",
+        "canvasRelativeHeight": "ok", "stretchToCanvas": "ok", "rotation": "ok",
+        "shapeConfig.cornerRadius": "ok", "shapeConfig.strokeColor": "ok",
+        "fadeInMs": "ok", "opacity": "ok"
+      },
+      "notes": []
+    },
+    "shape.mediaFill": {
+      "_desc": "shape layer with shapeConfig.fillStyle 'image'|'video' — THE canonical way to place a positioned/grid photo",
+      "fields": {
+        "canvasRelativeWidth": "ok", "canvasRelativeHeight": "ok", "position": "ok",
+        "rotation": "ok", "shapeConfig.cornerRadius": "ok", "shapeConfig.strokeColor": "ok",
+        "shapeConfig.strokeWidth": "ok", "shapeConfig.fillMediaFit": "ok",
+        "fadeInMs": "ok", "fadeOutMs": "ok", "opacity": "ok", "slotRef": "ok",
+        "colorAdjust": "breaks",
+        "videoEffects": "breaks",
+        "keyframes": "breaks",
+        "scale": "breaks"
+      },
+      "notes": [
+        "colorAdjust / videoEffects are not supported on a media-fill shape in the export (the fill comes out blank). To 'grade' shape photos, put a light-leak overlay on top instead.",
+        "Size it with canvasRelativeWidth/Height + position (top-left %). Leave scale at 1.",
+        "shapeConfig.fillMediaRemoteUrl (https) is not downloaded by a raw MCP export, but the app localizes it on the real 'use Reel' path, so shipping remote defaults is correct. For a direct MCP export test, point fillMediaUri at a local file://."
+      ]
+    },
+    "video": {
+      "fields": {
+        "content": "ok", "mediaOffset": "ok", "stretchToCanvas": "ok",
+        "canvasRelativeWidth": "ok", "canvasRelativeHeight": "ok", "fitMode": "ok",
+        "colorAdjust": "ok", "videoEffects": "ok", "filterId": "ok", "lut": "ok",
+        "keyframes": "ok", "transitionIn": "ok", "blendMode": "ok", "opacity": "ok",
+        "volume": "ok", "slotRef": "ok"
+      },
+      "notes": [
+        "One clip can appear on many segments with different mediaOffset + filterId — the 'single-clip velocity' pattern.",
+        "blendMode:'screen' + a light-leak clip is the parity-safe way to add 'lights'."
+      ]
+    },
+    "audio": {
+      "fields": { "content": "ok", "volume": "ok", "fadeInMs": "ok", "fadeOutMs": "ok", "slotRef": "ok" },
+      "notes": ["Give it the highest trackIndex (back of the stack); z-order is irrelevant but the validator wants uniqueness."]
+    },
+    "generativeBg": {
+      "_desc": "procedural shader background (lightrays, bokehdrift, light-leak, …)",
+      "fields": {
+        "effectId": "canvasOnly", "fxParams": "canvasOnly", "opacity": "canvasOnly"
+      },
+      "notes": [
+        "Avoid in shipped templates: the canvas preview and the export differ ('lightrays' is subtle on canvas but a heavy warm wash in export; 'light-leak' has no canvas preview at all but renders thick fog in the MP4).",
+        "Use a real-footage light-leak overlay video instead: https://expocut.b-cdn.net/light-leak/v1/<category>/<preset>.mp4 with blendMode 'screen'."
+      ]
+    }
+  },
+  "units": {
+    "mcp_add_layer.startTime": "SECONDS",
+    "mcp_add_layer.duration": "SECONDS",
+    "mcp_update_layer.patch.startTime": "SECONDS",
+    "mcp_get_layer.startTime": "milliseconds (asymmetric with the setter!)",
+    "template.durationMs": "milliseconds",
+    "layer.startTime": "milliseconds",
+    "layer.duration": "milliseconds",
+    "layer.fadeInMs": "milliseconds",
+    "keyframes.tracks[].keyframes[].t": "MICROSECONDS (absolute on the project timeline, not layer-relative)",
+    "_trap": "Passing 9000 to an MCP add_*_layer meaning '9000 ms' creates a 9000-SECOND layer. The project becomes 2.5 hours long and the export appears to hang; there is no cancel-export tool."
+  },
+  "zStack": {
+    "_rule": "LOWER trackIndex = ON TOP (front). Every layer needs a UNIQUE trackIndex ('one layer = one object' validator rule).",
+    "order_front_to_back": ["text", "flash overlays", "light leaks", "stickers / svg decorations", "photo cards (shapes)", "full-canvas media", "background", "audio"],
+    "_trap": "Sorting layers by trackIndex and re-numbering sequentially can silently put full-canvas video IN FRONT of text — the caption/hook then never appears in the export. Assign z by ROLE, not by authoring order."
+  },
+  "validatorRules": [
+    "tracks[] must be non-empty — 'Template must declare at least one track' is a hard import error.",
+    "Every layer needs a unique trackIndex — 'One layer = one object: trackIndex N holds M objects'.",
+    "add_light_leak_overlay creates ~6 layers that SHARE one trackIndex, so its own output fails save_project_as_template until you re-number.",
+    "Every slotRef must resolve to a declared slot.",
+    "Asset URLs must be https (or asset:/bundled:). file:// paths make the slot empty on every other device.",
+    "schemaVersion must be '1.0' or '1.1'."
+  ],
+  "toolQuirks": {
+    "save_project_as_template": "Lossy round-trip: it turns SVG sticker layers into image slots, does not slot media-fill shapes, and can drop text content and text animations. Prefer authoring the JSON directly; if you must round-trip, diff and repair slots/text afterwards.",
+    "add_svg_layer": "param is `svgContent` (not `svg`); startTime/duration in SECONDS.",
+    "set_shape_fill": "mediaUri accepts a LOCAL file:// only — for remote fills write shapeConfig.fillMediaRemoteUrl into the JSON yourself.",
+    "export_project": "synchronous (~40-60s for a short reel), returns {uri}. Do not wrap it in a retry loop: a second call while one is running is refused with 'another export is already in progress'. If the HTTP call times out, the export usually still completes; check get_render_status instead of calling export_project again.",
+    "verify_export_parity": "compares canvas (e.g. 512x910) and export (480x854) frames at their native sizes without resizing, so different dimensions report meanAbsDiff -1 / mismatchRatio 1 / MAJOR_DIFFERENCES even for identical frames. When the sizes differ, compare capture_canvas and capture_export_frame yourself.",
+    "create_project": "does NOT make the new project active — call open_project with the returned id or your layers land in whatever project was already open."
+  },
+  "wizardBehaviour": {
+    "autoFillFromStock": "Runs AUTOMATICALLY when the Wizard opens and replaces every unbound slot with RANDOM stock photos. It does NOT consult slot.defaultBinding, so curated default photos never show in Wizard mode (they only appear in the pre-rendered previewVideoUri).",
+    "snapshotTradeoff": "mode:'snapshot' with zero slots stops the stock auto-fill BUT breaks the Wizard opening entirely. Keep mode:'template' + slots so 'Use this Reel' opens the Wizard; accept that the Wizard shows sample media until the user picks their own.",
+    "demoCanvas": "The customize-stage canvas paints a bundled placeholder SVG for any un-edited media SLOT. Media-fill SHAPES are not treated as slots by that check, so they render their real fill."
+  }
+}
