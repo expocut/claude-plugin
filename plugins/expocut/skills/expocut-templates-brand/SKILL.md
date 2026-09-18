@@ -1,10 +1,10 @@
 ---
 name: expocut-templates-brand
 description: "Start and finish branded ExpoCut projects from templates. Use for \"use a template\", \"start from the speaker card\", \"drop this template JSON into the editor\", \"apply my brand kit / logo / slogan / socials\", \"change the theme colours\", \"swap the palette\", \"save this edit as a template\", \"publish / share this to the Community\", \"delete my upload\", reels and themes. Owns list_templates, apply_template (slot bindings + themeId), import_template_json, set_template_theme (@role palette tokens), save_project_as_template (template vs snapshot), submit_template / list_my_submissions / delete_my_submission, list_reels / apply_reel / swap_reel_theme, and the brand profile tools (create / update / delete / get / list, apply_brand_profile_to_project). Do not use for authoring or debugging the reel JSON itself (expocut-reel-templates), importing Lottie / FCPXML / .mogrt / .cube files (expocut-template-import), or ordinary editing once the project exists (expocut-video-creating)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

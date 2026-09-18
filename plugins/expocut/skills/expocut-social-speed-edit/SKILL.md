@@ -1,10 +1,10 @@
 ---
 name: expocut-social-speed-edit
 description: "Executes fast social edits inside ExpoCut through its in-app MCP server - speed ramps and slow-mo, splits and trims, cut-level junction transitions on touching clips (wipes, pushes, distort, light leaks, shade shaders), one-call clip sequences with push-ins and labels, keyframed zoom punches, silence removal and long-take-to-short auto edits, and the export settings that actually exist. Use when the user says punchy, TikTok-style, CapCut-style, Reels or Shorts edit, montage, room tour, speed ramp, slow-mo, 2x, zoom punch, whip pan, transition between clips, cut on the beat, trim the dead air, or turn this long video into a short. Beat times come from expocut-audio-post (beat_cut_from_drums) and captions from expocut-kinetic-captions. Do not use for general keyframe choreography (expocut-motion-graphics), colour (expocut-color-grading), or hook and pacing strategy (expocut-retention-playbook)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

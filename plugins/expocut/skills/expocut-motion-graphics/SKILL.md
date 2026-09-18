@@ -1,10 +1,10 @@
 ---
 name: expocut-motion-graphics
 description: "Animate layers in the ExpoCut mobile editor through its MCP server - keyframes on 58 properties (position, scale, rotation, opacity, blur, colour, mask geometry, border, text colour) with hold, linear, bezier and preset easing, 25 motion-path presets (arc, loop, spiral, heart), a project virtual camera with per-layer parallax depth, one-call mask animations, and in/out layer transitions including GPU shader wipes. Use when the user says animate, keyframe, ease, pop in, bounce, overshoot, Ken Burns, push in, parallax, camera move, orbit, follow a path, mask wipe, reveal, spin, wiggle, loop, \"After Effects style\", \"make it move\", logo sting, animated badge, or wants a photo slideshow with motion. Do not use for text animation presets, typewriter or captions (use expocut-kinetic-captions), for cut-to-cut junction transitions, speed ramps or beat cuts (use expocut-social-speed-edit), or for blend modes, track mattes, parenting rigs and time remap (use expocut-compositing)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

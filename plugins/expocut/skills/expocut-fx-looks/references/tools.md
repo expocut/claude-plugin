@@ -1,6 +1,6 @@
 # Tool signatures used by expocut-fx-looks
 
-<!-- generated from the app's live MCP registry by ExpoCut's skill-parity test; do not edit by hand -->
+<!-- generated from the live MCP registry by apps/mobile/src/mcp/__tests__/skillsParity.test.ts; do not edit by hand -->
 
 Exact names, parameters and enums of every tool this skill mentions. `*` marks a required parameter.
 Time arguments named startTime / duration / *Sec are seconds; keyframe timeMs is milliseconds.
@@ -45,9 +45,54 @@ Add a whole-canvas procedural filter layer (grain, dither, noise treatments, sca
 | duration | number |  |
 | opacity | number |  |
 
+## apply_face_blur
+
+Detects every face in a video/image layer and censors it with a box that TRACKS the face over time (keyframed, so a moving subject stays covered). mode "pixelate" (default) mosaics; "blur" softens. padding grows the box so hair and chin are covered. samplePeriodMs controls how often detection runs — lower tracks faster motion at more cost. LONG-RUNNING. Detection is iOS-only today: on Android it fails with faceBlur.UNSUPPORTED_PLATFORM rather than silently doing nothing, so use the censorblur filter with a manual region there. Fails with faceBlur.NO_FACE_FOUND when a detection is too weak, and faceBlur.DETECTION_UNAVAILABLE when Vision produced nothing at all (the iOS Simulator cancels face requests — real hardware is needed). Those two are deliberately distinct: for a privacy tool, "no faces present" and "detection never ran" must never look the same. It will never censor mid-frame as a guess.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| mode | string | one of: `pixelate`, `blur` |
+| padding | number | box growth, default 0.35 |
+| cellSize | number | mosaic cell px @1080p, default 26 |
+| blurRadius | number | blur radius when mode=blur, default 26 |
+| minScore | number | detection confidence floor, default 0.3 |
+| samplePeriodMs | number | detection interval, default 250 |
+
+## apply_liquify
+
+Warps a layer with push / bloat / pucker brush strokes — the Liquify tool, expressed as data. Strokes are baked into a displacement field and rendered by the shipped displacementmap filter, so the result is identical on the canvas and in export on both platforms. Coordinates are normalized layer uv: x/y are the brush centre (0..1), dx/dy the drag for `push` (also uv, so 0.05 moves content 5% of the frame), radius a fraction of the layer's SHORTER axis, so the brush is a circle on screen and covers the same proportion of the frame whether the layer is portrait, square or landscape — strength 0..1. bloat pushes outward from the centre and pucker pulls inward. Displacement is clamped to ±0.125 uv. REPLACES any previous Liquify warp on the layer (pass the previous strokes from liquify_status plus your new ones to build up). An EMPTY strokes array removes the warp.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| strokes\* | array |  |
+
+## apply_portrait_blur
+
+Applies Portrait Blur to an image or video layer: cuts the subject out with the on-device model, then splits the layer into a sharp subject in front of a blurred copy of the original. blurRadius/blades/highlightBoost tune the background bokeh (blades 0 = round, 5-9 = polygonal iris). LONG-RUNNING — the bake takes seconds for a still and longer for video. Fails with portraitBlur.MODEL_NOT_DOWNLOADED if the model is missing; call portrait_blur_download_model first. Reverse with remove_portrait_blur.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| blurRadius | number | default 34 |
+| blades | number | 0 = round; default 6 |
+| highlightBoost | number | bokeh highlight bloom; default 4 |
+
+## apply_subject_blur
+
+Blurs everything EXCEPT the subject, with a soft per-pixel falloff. Bakes a cutout with the on-device model once, then drives compoundblur from its alpha — one layer, no composition change, and the subject’s own pixels are never replaced. Long-running: the bake takes seconds for a still and longer for video. The model must already be on the device (subject_blur_status / subject_blur_download_model). radius = maximum background blur (0-64, default 30); gamma = falloff tightness, higher keeps more of the near-subject sharp (0.25-3, default 1.4); threshold lifts the floor so near-subject pixels stay fully sharp (0-0.9). Use apply_portrait_blur instead when you want the background as its own editable layer.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| radius | number |  |
+| gamma | number |  |
+| threshold | number |  |
+
 ## capture_canvas
 
-Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024).
+Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024). ANDROID CAVEAT: this capture is a software view-snapshot, which does NOT include camera-based 3D — a layer with rotationX/rotationY renders FLAT here even though the real screen and the export both show the tilt. When that applies to the frame you asked for, the result carries a `warnings` entry naming the affected layers; use capture_export_frame to see the tilt. Do not read a flat capture as a tilt bug on Android.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -77,11 +122,25 @@ Remove the source image/video from a shader layer so it falls back to its proced
 
 ## describe_canvas
 
-Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden or scheduled outside this frame. This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
+Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden, scheduled outside this frame, or non-visual (audio never paints and is never listed). This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
 
 | param | type | notes |
 | --- | --- | --- |
 | timeSec | number |  |
+
+## export_project
+
+Render and encode the active project to a video file. Reuses the in-editor export pipeline via a module-scope bridge — the editor must be mounted on this project (open_project auto-navigates so this normally just works). Encoder settings come from set_export_settings + the editor's defaults. Returns the local file:// path of the rendered video on success. Long timelines can take minutes; client should be patient (10-minute internal timeout).
+
+No parameters.
+
+## face_blur_status
+
+Reports whether face detection is available on this device and whether the layer already has a face-blur track. Call before apply_face_blur so an unsupported platform is not a surprise.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
 
 ## get_effect_schema
 
@@ -94,6 +153,23 @@ Get the full schema for ONE effect — every param's kind, default, range, and u
 ## get_layer
 
 Return the full Layer object (every field) for a given id. Use this to diff state, then `update_layer` to patch.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+
+## keyframe_clear
+
+Clear all keyframes on a layer. Pass a property to clear only that track. This is the "remove animation" path — equivalent to the editor's Reset button.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| property | string |  |
+
+## liquify_status
+
+Reports whether a Liquify warp is on a layer and returns its strokes, so they can be extended and re-applied rather than redrawn. Returns { applied, strokes, maxShift }.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -170,6 +246,22 @@ Remove ONE shader filter from a layer’s chain — by effectId (first matching 
 | layerId\* | string |  |
 | effectId | string |  |
 | index | number |  |
+
+## remove_liquify
+
+Removes the Liquify warp from a layer, leaving any other filters in its chain alone.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+
+## remove_subject_blur
+
+Removes Subject Blur from a layer, leaving any other filters in its chain alone. The baked matte file is left on disk but is never read back — apply_subject_blur always writes a fresh timestamped matte, so re-applying re-runs the model.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
 
 ## reorder_layer
 
@@ -275,7 +367,7 @@ Apply a tint overlay to any layer. Color blends multiplicatively over the render
 
 ## set_layer_shader_filter
 
-Apply a procedural/shader FILTER to an EXISTING image/video layer — the 7 parametric engines (cinematicgrade: split-tone wheels + skin protection + halation; warp: swirl/fisheye/kaleidoscope/tiny-planet; retrodisplay: CRT/LED/handheld; edgesketch; lightfx; cartoon; lightflicker) plus vignette, noir, duotone, halftone, vcrdistortion, oldfilm, pixelate, glitchrgb, bloomglow, chromaticaberration, etc. Rendered live on canvas AND in the export encoder. effectId must have scope:filter (list_effects category="filter"). preset applies a named Look from the engine (get_effect_schema lists names, e.g. "Teal & Orange" on cinematicgrade); explicit fxParams override preset values. Default REPLACES the layer’s filter chain. append=true STACKS a different engine (max 4 stages compose; exceeding throws) — but if the same effectId is already in the chain, append swaps that instance in place instead of stacking a duplicate.
+Apply a procedural/shader FILTER to an EXISTING image/video layer — the 7 parametric engines (cinematicgrade: split-tone wheels + skin protection + halation; warp: swirl/fisheye/kaleidoscope/tiny-planet; retrodisplay: CRT/LED/handheld; edgesketch; lightfx; cartoon; lightflicker) plus vignette, noir, duotone, halftone, vcrdistortion, oldfilm, pixelate, glitchrgb, bloomglow, chromaticaberration, etc. Rendered live on canvas AND in the export encoder. effectId must have scope:filter (list_effects category="filter"). preset applies a named Look from the engine (get_effect_schema lists names, e.g. "Teal & Orange" on cinematicgrade); explicit fxParams override preset values. Default REPLACES the layer’s filter chain. append=true STACKS a different engine (max 4 stages compose; exceeding throws) — but if the same effectId is already in the chain, append swaps that instance in place instead of stacking a duplicate. mapUri gives a MAP-DRIVEN filter (compoundblur, displacementmap) its control image — a local file:// image sampled at texture slot 1: compoundblur reads its luminance as a per-pixel blur radius, displacementmap reads R/G (or luminance) as a warp field. Pass null to clear it. With no map, compoundblur blurs evenly and displacementmap displaces by the source’s own luminance.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -284,6 +376,16 @@ Apply a procedural/shader FILTER to an EXISTING image/video layer — the 7 para
 | fxParams | object |  |
 | append | boolean |  |
 | preset | string |  |
+| mapUri | string \| null | Control image for a map-driven filter (compoundblur, displacementmap). Local file:// path; null clears it. |
+
+## set_layer_shutter_angle
+
+Shutter-angle motion blur on a BASE video clip — an export-time temporal blend of each frame with the previous few (echo), which smooths the strobing that speed ramps and stepped slow-mo produce. angleDeg 0 = off, 180 = film convention, up to 720 for long trails. Two caveats: it affects the BASE clip only (not overlays), and the canvas preview does NOT simulate it — the editor shows a sharp frame and only the export carries the blur, so verify with export_project rather than capture_canvas.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| angleDeg\* | number | 0 = off · 180 = film · max 720 |
 
 ## set_layer_transition
 
@@ -297,7 +399,7 @@ Set or change the entrance (in) / exit (out) transition on an EXISTING layer. Ea
 
 ## set_layer_video_effects
 
-Set the per-layer video effect chain (Film, Color, Mood, Stylize, Light, Blur & Focus, Distort). Each entry: {effectId, intensity 0..100}. Pass an empty array to clear. Use list_video_effects to discover valid effectIds and their categories.
+Set the per-layer video effect chain (Film, Color, Mood, Stylize, Light, Blur & Focus, Distort). Each entry: {effectId, intensity 0..100, params?}. Pass an empty array to clear. Use list_video_effects to discover valid effectIds and their categories. A few effects accept `params` to change their shape rather than their strength — motionBlur takes {angle: 0..360 degrees, radius: 0..60 px}, so angle 90 gives a vertical smear instead of the default horizontal one. Unknown param keys are rejected.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -340,6 +442,22 @@ Apply a stacked text effect preset to an existing text layer (Style ▸ Effects 
 | --- | --- | --- |
 | layerId\* | string |  |
 | effectId\* | string \| null |  |
+
+## subject_blur_download_model
+
+Downloads the segmentation model Subject Blur needs for this layer (IS-Net ~44 MB for stills, RVM for video). Explicit and separate from apply_subject_blur because it is a large fetch. No-op when the model is already present.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+
+## subject_blur_status
+
+Reports whether Subject Blur is applied to a layer and whether the segmentation model it needs is already on the device. Call before apply_subject_blur so a ~44 MB download is never a surprise. Returns { applied, modelId, modelDownloaded, sourceKind }.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
 
 ## verify_export_parity
 

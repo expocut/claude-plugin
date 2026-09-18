@@ -1,6 +1,6 @@
 # Tool signatures used by expocut-compositing
 
-<!-- generated from the app's live MCP registry by ExpoCut's skill-parity test; do not edit by hand -->
+<!-- generated from the live MCP registry by apps/mobile/src/mcp/__tests__/skillsParity.test.ts; do not edit by hand -->
 
 Exact names, parameters and enums of every tool this skill mentions. `*` marks a required parameter.
 Time arguments named startTime / duration / *Sec are seconds; keyframe timeMs is milliseconds.
@@ -19,7 +19,7 @@ Add a CDN Light Leak as a real-footage overlay on a new "light" track above the 
 
 ## add_shape_layer
 
-Add a shape layer. `shape` is any built-in preset id — basic (rectangle, circle, triangle, hexagon…), arrows (arrow, chevron…), stars (star, burst, sun…), objects (heart, shield, speech_bubble, badge, ribbon, callout…), lines, rulers. Call list_shapes to discover ids. For gradient backgrounds: pass gradientColors=[startHex, endHex] and stretchToCanvas=true.
+Add a shape layer. `shape` is any built-in preset id — basic (rectangle, circle, triangle, hexagon…), arrows (arrow, chevron…), stars (star, burst, sun…), objects (heart, shield, speech_bubble, badge, ribbon, callout…), lines, rulers. Call list_shapes to discover ids. PLACEMENT: x/y are the TOP-LEFT corner of the shape box in canvas % (default 50/50, i.e. the box STARTS at the canvas centre — pass x = 50 − w/2, y = 50 − h/2 to centre it). SIZE: set BOTH canvasRelativeWidth/Height for an exact % box; otherwise the box is the 150 pt design square = get_canvas_info.layerBaseWidthPct of the canvas width (its height in % depends on the aspect). describe_canvas returns the resolved box. For gradient backgrounds: pass gradientColors=[startHex, endHex] and stretchToCanvas=true.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -37,15 +37,15 @@ Add a shape layer. `shape` is any built-in preset id — basic (rectangle, circl
 | rotation | number | degrees |
 | fadeInMs | number |  |
 | fadeOutMs | number |  |
-| x | number |  |
-| y | number |  |
-| scale | number |  |
+| x | number | Top-left x percent 0..100 (default 50) |
+| y | number | Top-left y percent 0..100 (default 50) |
+| scale | number | Scales the box about its centre |
 | startTime | number |  |
 | duration | number |  |
 
 ## add_text_layer
 
-Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text auto-fits the canvas regardless of aspect ratio (9:16, 16:9, 1:1) — perfect for title cards. Use verticalAnchor="top|center|bottom" instead of computing y. startTime/duration are seconds. Use transitionIn/Out (e.g. "fade", "scale") for entrance/exit animations.
+Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text auto-fits the canvas regardless of aspect ratio (9:16, 16:9, 1:1) — perfect for title cards. x/y are the TOP-LEFT corner of the text block in canvas % (fullWidth pins x=0). Use verticalAnchor="top|center|bottom" instead of computing y: it places the block top at 12 %, the glyph centre at 50 %, or the block bottom at 88 % on any aspect. startTime/duration are seconds. Use transitionIn/Out (e.g. "fade", "scale") for entrance/exit animations.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -82,7 +82,7 @@ Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text au
 
 ## add_video_layer
 
-Add a video layer from any local file:// URI (camera roll exports, downloaded clips, TTS-generated screens, etc). For Pexels stock specifically use add_stock_video_layer. mediaOffsetSec sets the source in-point (e.g. mediaOffsetSec=8 to skip first 8s of source). The layer is fit-to-screen (full-canvas) by default; pass stretchToCanvas:false to letterbox.
+Add a video layer from any local file:// URI (camera roll exports, downloaded clips, TTS-generated screens, etc). For Pexels stock specifically use add_stock_video_layer. mediaOffsetSec sets the source in-point (e.g. mediaOffsetSec=8 to skip first 8s of source). The layer is fit-to-screen (full-canvas) by default; pass stretchToCanvas:false to letterbox (x/y = TOP-LEFT corner in canvas %, default 0/0; the unscaled box is the 150 pt design square aspect-fitted to the source, whose natural size is probed at add time and stored).
 
 | param | type | notes |
 | --- | --- | --- |
@@ -99,9 +99,31 @@ Add a video layer from any local file:// URI (camera roll exports, downloaded cl
 | stretchToCanvas | boolean |  |
 | volume | number |  |
 
+## apply_portrait_blur
+
+Applies Portrait Blur to an image or video layer: cuts the subject out with the on-device model, then splits the layer into a sharp subject in front of a blurred copy of the original. blurRadius/blades/highlightBoost tune the background bokeh (blades 0 = round, 5-9 = polygonal iris). LONG-RUNNING — the bake takes seconds for a still and longer for video. Fails with portraitBlur.MODEL_NOT_DOWNLOADED if the model is missing; call portrait_blur_download_model first. Reverse with remove_portrait_blur.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| blurRadius | number | default 34 |
+| blades | number | 0 = round; default 6 |
+| highlightBoost | number | bokeh highlight bloom; default 4 |
+
+## apply_subject_blur
+
+Blurs everything EXCEPT the subject, with a soft per-pixel falloff. Bakes a cutout with the on-device model once, then drives compoundblur from its alpha — one layer, no composition change, and the subject’s own pixels are never replaced. Long-running: the bake takes seconds for a still and longer for video. The model must already be on the device (subject_blur_status / subject_blur_download_model). radius = maximum background blur (0-64, default 30); gamma = falloff tightness, higher keeps more of the near-subject sharp (0.25-3, default 1.4); threshold lifts the floor so near-subject pixels stay fully sharp (0-0.9). Use apply_portrait_blur instead when you want the background as its own editable layer.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| radius | number |  |
+| gamma | number |  |
+| threshold | number |  |
+
 ## capture_canvas
 
-Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024).
+Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024). ANDROID CAVEAT: this capture is a software view-snapshot, which does NOT include camera-based 3D — a layer with rotationX/rotationY renders FLAT here even though the real screen and the export both show the tilt. When that applies to the frame you asked for, the result carries a `warnings` entry naming the affected layers; use capture_export_frame to see the tilt. Do not read a flat capture as a tilt bug on Android.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -148,7 +170,7 @@ Remove a track-matte configuration from a layer.
 
 ## describe_canvas
 
-Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden or scheduled outside this frame. This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
+Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden, scheduled outside this frame, or non-visual (audio never paints and is never listed). This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -156,7 +178,7 @@ Describe — as structured TEXT, no image — exactly what is composited at a gi
 
 ## export_project
 
-Render and encode the active project to a video file. Reuses the in-editor export pipeline — the editor must be mounted on this project (open_project auto-navigates so this normally just works). Encoder settings come from set_export_settings + the editor's defaults. Returns the local file:// path of the rendered video on success. Long timelines can take minutes; client should be patient (10-minute internal timeout).
+Render and encode the active project to a video file. Reuses the in-editor export pipeline via a module-scope bridge — the editor must be mounted on this project (open_project auto-navigates so this normally just works). Encoder settings come from set_export_settings + the editor's defaults. Returns the local file:// path of the rendered video on success. Long timelines can take minutes; client should be patient (10-minute internal timeout).
 
 No parameters.
 
@@ -210,6 +232,22 @@ Mute or unmute the embedded audio on a video layer (does not detach the audio in
 | layerId\* | string |  |
 | muted\* | boolean |  |
 
+## portrait_blur_download_model
+
+Downloads the segmentation model Portrait Blur needs for this layer (IS-Net ~44 MB for stills, RVM for video). Separate from apply_portrait_blur because it is a large fetch the user should opt into. No-ops when the model is already present.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+
+## portrait_blur_status
+
+Reports whether Portrait Blur is applied to a layer and whether the segmentation model it needs is already on the device. Call before apply_portrait_blur so a ~44 MB download is never a surprise. Returns { applied, modelId, modelDownloaded, sourceKind }.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+
 ## preview_filmstrip
 
 Capture a STRIP of evenly-spaced frames across a time range and return them as labeled MCP image blocks — so you can SEE motion, a transition or pacing instead of one still. Args: fromSec (default 0), toSec (default project end), frames (1..12, default 6), maxWidth (64..512, default 320), format ("jpg" default / "png"), quality. The leading text block lists each frame index and time. Requires the editor mounted on the active project (same as capture_canvas). For a single high-detail frame use capture_canvas instead.
@@ -239,6 +277,14 @@ Remove the layer with the given id from the active project.
 | --- | --- | --- |
 | id\* | string |  |
 
+## remove_portrait_blur
+
+Removes Portrait Blur: restores the layer’s original (un-cut) source and deletes the blurred background copy. Pass the SUBJECT layer id — the one apply_portrait_blur returned as subjectLayerId.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+
 ## reorder_layer
 
 Change a layer's z-order. "front" pulls it to trackIndex 0 (top); "back" pushes it past every other layer (bottom). Pass an explicit number for fine control. Other layers are shifted to keep the trackIndex sequence dense.
@@ -267,7 +313,7 @@ Lock or unlock proportional scaling on a layer's edge-handle gestures. When lock
 
 ## set_blur_fill
 
-Override the auto-blur-background fill for a `fitMode: contain` layer. true = always on, false = always off, null = auto (the default for 9:16/4:5/1:1 canvases).
+Override the auto-blur-background fill for a `fitMode: contain` layer. true = always on, false = always off, null = auto (the CapCut-style default for 9:16/4:5/1:1 canvases).
 
 | param | type | notes |
 | --- | --- | --- |
@@ -313,7 +359,7 @@ Nudge an audio layer's playback relative to its timeline startTime. Positive off
 
 ## set_layer_background_remover
 
-ML-based per-frame background removal for video layers (talking heads, vlogs). iOS uses VNGeneratePersonSegmentationRequest; Android uses MLKit Selfie Segmentation. quality trades export time for matte accuracy. featherPx softens the edge to hide frame-to-frame flicker. Pass enabled=false to disable.
+Stores a background-removal INTENT on the layer. NOTE: this flag is not yet consumed by the canvas renderer or either export encoder — today it only lights the toolbar affordance, so setting it does NOT remove the background in a preview or an export. For a result that actually renders, use apply_portrait_blur (bakes a cutout with the on-device model and composes it), or drive the Background Removal screen in the app. quality/featherPx are stored for the future per-frame path. Pass enabled=false to clear.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -478,6 +524,19 @@ Independent horizontal / vertical scale on a layer (overrides the uniform scale)
 | scaleX | number |  |
 | scaleY | number |  |
 
+## set_layer_shader_filter
+
+Apply a procedural/shader FILTER to an EXISTING image/video layer — the 7 parametric engines (cinematicgrade: split-tone wheels + skin protection + halation; warp: swirl/fisheye/kaleidoscope/tiny-planet; retrodisplay: CRT/LED/handheld; edgesketch; lightfx; cartoon; lightflicker) plus vignette, noir, duotone, halftone, vcrdistortion, oldfilm, pixelate, glitchrgb, bloomglow, chromaticaberration, etc. Rendered live on canvas AND in the export encoder. effectId must have scope:filter (list_effects category="filter"). preset applies a named Look from the engine (get_effect_schema lists names, e.g. "Teal & Orange" on cinematicgrade); explicit fxParams override preset values. Default REPLACES the layer’s filter chain. append=true STACKS a different engine (max 4 stages compose; exceeding throws) — but if the same effectId is already in the chain, append swaps that instance in place instead of stacking a duplicate. mapUri gives a MAP-DRIVEN filter (compoundblur, displacementmap) its control image — a local file:// image sampled at texture slot 1: compoundblur reads its luminance as a per-pixel blur radius, displacementmap reads R/G (or luminance) as a warp field. Pass null to clear it. With no map, compoundblur blurs evenly and displacementmap displaces by the source’s own luminance.
+
+| param | type | notes |
+| --- | --- | --- |
+| layerId\* | string |  |
+| effectId\* | string |  |
+| fxParams | object |  |
+| append | boolean |  |
+| preset | string |  |
+| mapUri | string \| null | Control image for a map-driven filter (compoundblur, displacementmap). Local file:// path; null clears it. |
+
 ## set_layer_speed
 
 Set a video/audio layer's playback speed (slow-mo / fast-forward). speed=2 plays twice as fast and halves the clip's timeline duration; speed=0.5 is slow motion and doubles it. The source in/out points are preserved (only the timeline length changes). keepPitch (default true) keeps the audio pitch natural; set false for the classic varispeed effect. Video / audio layers only. Presets: 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4.
@@ -538,6 +597,14 @@ Trim a video/audio (or any) layer. mediaOffsetSec moves the in-point into the so
 | durationSec | number |  |
 | startTimeSec | number |  |
 
+## undo_to_checkpoint
+
+Jump directly to a specific checkpoint by id.
+
+| param | type | notes |
+| --- | --- | --- |
+| id\* | string |  |
+
 ## unlink_video_audio
 
 Detach a video layer's embedded audio into a separate audio Layer + Track. The video is forced muted afterward. Returns the new audio layer id. Use relink_video_audio to undo.
@@ -548,7 +615,7 @@ Detach a video layer's embedded audio into a separate audio Layer + Track. The v
 
 ## update_layer
 
-Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer.
+Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer. rotationX / rotationY tilt the layer out of plane in degrees (0 = flat, clamped to ±75) — that is the card-in-3D-space move; plain `rotation` remains the in-plane spin. Supported on every visual layer type that can rotate at all — image, video, base video, text, shape, shape-widget, collage and Lottie — on canvas and at export. Android adds transcript and lower-third; on iOS those two carry no layer rotation in the encoder at all, so they stay flat there.
 
 | param | type | notes |
 | --- | --- | --- |

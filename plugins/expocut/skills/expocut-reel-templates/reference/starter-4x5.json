@@ -3,7 +3,7 @@
   "mode": "template",
   "id": "starter-4x5-v1",
   "name": "Starter 4:5",
-  "description": "Minimal valid reel template — one photo slot, a headline, an SVG accent bar (unique gradient id), and music. Copy and build from here; replace the example.com placeholder URLs with your own hosted assets before publishing.",
+  "description": "Minimal valid reel template — one photo slot, a headline, an SVG accent bar (unique gradient id), and music. Copy and build from here.",
   "category": "For You",
   "aspectRatio": "4:5",
   "durationMs": 6000,
@@ -16,8 +16,8 @@
       "required": true,
       "defaultBinding": {
         "kind": "media",
-        "uri": "https://example.com/starter-4x5/sample.jpg",
-        "remoteUrl": "https://example.com/starter-4x5/sample.jpg",
+        "uri": "https://expocut.b-cdn.net/reels/assets/starter-4x5/sample.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/starter-4x5/sample.jpg",
         "width": 1080,
         "height": 1350
       }
@@ -34,8 +34,8 @@
       "kind": "audio",
       "defaultBinding": {
         "kind": "media",
-        "uri": "https://example.com/starter-4x5/music.mp3",
-        "remoteUrl": "https://example.com/starter-4x5/music.mp3"
+        "uri": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+        "remoteUrl": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3"
       }
     }
   ],
@@ -100,7 +100,7 @@
       "slotRef": "s_photo",
       "startTime": 0,
       "duration": 6000,
-      "content": "https://example.com/starter-4x5/sample.jpg",
+      "content": "https://expocut.b-cdn.net/reels/assets/starter-4x5/sample.jpg",
       "position": { "x": 50, "y": 50 },
       "scale": 1,
       "rotation": 0,
@@ -111,7 +111,7 @@
       "naturalWidth": 1080,
       "naturalHeight": 1350,
       "remoteSource": {
-        "url": "https://example.com/starter-4x5/sample.jpg",
+        "url": "https://expocut.b-cdn.net/reels/assets/starter-4x5/sample.jpg",
         "kind": "cdn",
         "sourceId": "starter-sample"
       }
@@ -124,20 +124,20 @@
       "slotRef": "s_music",
       "startTime": 0,
       "duration": 6000,
-      "content": "https://example.com/starter-4x5/music.mp3",
+      "content": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
       "position": { "x": 50, "y": 50 },
       "scale": 1,
       "volume": 0.7,
       "fadeInMs": 800,
       "fadeOutMs": 1200,
       "remoteSource": {
-        "url": "https://example.com/starter-4x5/music.mp3",
-        "kind": "cdn",
-        "sourceId": "starter-music"
+        "url": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+        "kind": "freesound",
+        "sourceId": "761372"
       }
     }
   ],
   "transitions": [],
-  "previewVideoUri": "https://example.com/starter-4x5/preview.mp4",
-  "thumbnail": "https://example.com/starter-4x5/thumbnail.jpg"
+  "previewVideoUri": "https://expocut.b-cdn.net/reels/assets/starter-4x5/preview.mp4",
+  "thumbnail": "https://expocut.b-cdn.net/reels/assets/starter-4x5/thumbnail.jpg"
 }

@@ -1,6 +1,6 @@
 # Layer fields for update_layer patches
 
-Generated from the app's `get_layer_schema` table
+Generated from the `get_layer_schema` table in `src/mcp/editorTools/introspection.ts`
 (schema version 2026-05-24). Call `get_layer_schema { category }` for the live list. Fields are
 merged verbatim by `update_layer { id, patch }` except `startTime` and `duration`, which the tool
 converts from seconds to milliseconds. Prefer the typed setter named in the notes when one exists;

@@ -1,13 +1,13 @@
 {
-  "_about": "Which fields are supported on which layer type in the exported MP4 (as opposed to the editor canvas). Machine-readable so validate-reel.mjs can enforce it.",
+  "_about": "Which fields are SAFE on which layer type. Every 'breaks' entry below was found by exporting an MP4 and seeing the layer render wrong or blank while the editor canvas looked fine. Machine-readable so validate-reel.mjs can enforce it.",
   "_legend": {
     "ok": "renders identically on the editor canvas AND in the exported MP4",
     "canvasOnly": "renders on the canvas but NOT (or differently) in the export — never rely on it",
     "exportOnly": "renders in the export but has no canvas preview — the canvas shows a placeholder/watermark",
-    "breaks": "not supported in the export for this layer type (renders blank or mis-sized). Never set it.",
+    "breaks": "actively breaks the layer in the export (blank / mis-sized). NEVER set.",
     "na": "not applicable to this layer type"
   },
-  "_sizingRule": "Full-canvas media => stretchToCanvas:true + canvasRelativeWidth/Height:100. Positioned/grid photos => a media-fill SHAPE sized by canvasRelativeWidth/Height. Do NOT size a positioned IMAGE layer with scale+fitMode:contain — the export sizes it from baseWidth*scale (a 150-point base box in a 360-wide design canvas) and it comes out huge/blurry.",
+  "_sizingRule": "Full-canvas media => stretchToCanvas:true + canvasRelativeWidth/Height:100. Positioned/grid photos => a media-fill SHAPE sized by canvasRelativeWidth/Height. Do NOT size a positioned IMAGE layer with scale+fitMode:contain — the export sizes it from baseWidth*scale (LAYER_BASE_SIZE 150 in a 360-wide design canvas) and it comes out huge/blurry.",
   "layerTypes": {
     "text": {
       "fields": {
@@ -75,9 +75,9 @@
         "scale": "breaks"
       },
       "notes": [
-        "colorAdjust / videoEffects are not supported on a media-fill shape in the export (the fill comes out blank). To 'grade' shape photos, put a light-leak overlay on top instead.",
+        "colorAdjust / videoEffects on a media-fill shape make the fill export as a BLANK rounded rectangle. Verified twice. To 'grade' shape photos, put a light-leak overlay on top instead.",
         "Size it with canvasRelativeWidth/Height + position (top-left %). Leave scale at 1.",
-        "shapeConfig.fillMediaRemoteUrl (https) is not downloaded by a raw MCP export, but the app localizes it on the real 'use Reel' path, so shipping remote defaults is correct. For a direct MCP export test, point fillMediaUri at a local file://."
+        "shapeConfig.fillMediaRemoteUrl (https) is NOT downloaded by a raw export — but the app's prefetchTemplateAssets DOES localize it on the real 'use Reel' path, so shipping remote defaults is correct. For a direct MCP export test, point fillMediaUri at a local file://."
       ]
     },
     "video": {
@@ -98,12 +98,12 @@
       "notes": ["Give it the highest trackIndex (back of the stack); z-order is irrelevant but the validator wants uniqueness."]
     },
     "generativeBg": {
-      "_desc": "procedural shader background (lightrays, bokehdrift, light-leak, …)",
+      "_desc": "procedural SkSL shader background (lightrays, bokehdrift, light-leak, …)",
       "fields": {
         "effectId": "canvasOnly", "fxParams": "canvasOnly", "opacity": "canvasOnly"
       },
       "notes": [
-        "Avoid in shipped templates: the canvas preview and the export differ ('lightrays' is subtle on canvas but a heavy warm wash in export; 'light-leak' has no canvas preview at all but renders thick fog in the MP4).",
+        "AVOID in shipped templates. Canvas and export diverge badly: 'lightrays' is subtle on canvas but a heavy warm wash in export; 'light-leak' has NO canvas shader at all (prints a 'No SkSL preview for …' watermark) yet renders thick fog in the MP4.",
         "Use a real-footage light-leak overlay video instead: https://expocut.b-cdn.net/light-leak/v1/<category>/<preset>.mp4 with blendMode 'screen'."
       ]
     }
@@ -118,7 +118,7 @@
     "layer.duration": "milliseconds",
     "layer.fadeInMs": "milliseconds",
     "keyframes.tracks[].keyframes[].t": "MICROSECONDS (absolute on the project timeline, not layer-relative)",
-    "_trap": "Passing 9000 to an MCP add_*_layer meaning '9000 ms' creates a 9000-SECOND layer. The project becomes 2.5 hours long and the export appears to hang; there is no cancel-export tool."
+    "_trap": "Passing 9000 to an MCP add_*_layer meaning '9000 ms' creates a 9000-SECOND layer. The project becomes 2.5 hours long, export appears to hang, and there is NO cancel-export tool — the queue stays wedged."
   },
   "zStack": {
     "_rule": "LOWER trackIndex = ON TOP (front). Every layer needs a UNIQUE trackIndex ('one layer = one object' validator rule).",
@@ -134,16 +134,16 @@
     "schemaVersion must be '1.0' or '1.1'."
   ],
   "toolQuirks": {
-    "save_project_as_template": "Lossy round-trip: it turns SVG sticker layers into image slots, does not slot media-fill shapes, and can drop text content and text animations. Prefer authoring the JSON directly; if you must round-trip, diff and repair slots/text afterwards.",
+    "save_project_as_template": "LOSSY. It slot-ifies SVG sticker layers as image slots, does NOT slot media-fill shapes, and has dropped text content + text animations (came back with content:'' and no anim ids). Prefer authoring the JSON directly; if you must round-trip, diff and repair slots/text afterwards.",
     "add_svg_layer": "param is `svgContent` (not `svg`); startTime/duration in SECONDS.",
     "set_shape_fill": "mediaUri accepts a LOCAL file:// only — for remote fills write shapeConfig.fillMediaRemoteUrl into the JSON yourself.",
-    "export_project": "synchronous (~40-60s for a short reel), returns {uri}. Do not wrap it in a retry loop: a second call while one is running is refused with 'another export is already in progress'. If the HTTP call times out, the export usually still completes; check get_render_status instead of calling export_project again.",
-    "verify_export_parity": "compares canvas (e.g. 512x910) and export (480x854) frames at their native sizes without resizing, so different dimensions report meanAbsDiff -1 / mismatchRatio 1 / MAJOR_DIFFERENCES even for identical frames. When the sizes differ, compare capture_canvas and capture_export_frame yourself.",
+    "export_project": "synchronous (~40-60s for a short reel), returns {uri}. Do NOT wrap in a retry loop — retries double-fire and produce phantom 'another export is already in progress' locks. A 504 from the HTTP call often means the export SUCCEEDED anyway; look for the newest Library/Caches/VideoExport_*.mp4.",
+    "verify_export_parity": "BROKEN as of this writing: it compares canvas (e.g. 512x910) against export (480x854) WITHOUT resizing to a common size, so it returns meanAbsDiff -1 / mismatchRatio 1 / MAJOR_DIFFERENCES on frames that are actually identical. Do the diff manually until it normalizes dimensions.",
     "create_project": "does NOT make the new project active — call open_project with the returned id or your layers land in whatever project was already open."
   },
   "wizardBehaviour": {
     "autoFillFromStock": "Runs AUTOMATICALLY when the Wizard opens and replaces every unbound slot with RANDOM stock photos. It does NOT consult slot.defaultBinding, so curated default photos never show in Wizard mode (they only appear in the pre-rendered previewVideoUri).",
     "snapshotTradeoff": "mode:'snapshot' with zero slots stops the stock auto-fill BUT breaks the Wizard opening entirely. Keep mode:'template' + slots so 'Use this Reel' opens the Wizard; accept that the Wizard shows sample media until the user picks their own.",
-    "demoCanvas": "The customize-stage canvas paints a bundled placeholder SVG for any un-edited media SLOT. Media-fill SHAPES are not treated as slots by that check, so they render their real fill."
+    "demoCanvas": "The customize-stage canvas paints a bundled placeholder SVG for any un-edited media SLOT (demoPlaceholder.isDefaultMediaSlot). Media-fill SHAPES are not treated as slots by that check, so they render their real fill."
   }
 }

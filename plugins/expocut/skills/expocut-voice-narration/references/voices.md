@@ -2,8 +2,8 @@
 
 Read this when choosing a `voiceId` or writing a multi-voice script. The live list
 is `tts_list_voices {}` (id, name, gender, accent, grade). Descriptions and
-styles below come from the app's curated roster, which
-already excludes the lower-grade voices. Grades are the voice model's published
+styles below come from the app's curated roster (`src/tts/TTSVoices.ts`), which
+already excludes Kokoro's D/F-grade voices. Grades are Kokoro's official training
 quality grades; higher is more natural.
 
 ## Voices (14)
@@ -56,7 +56,7 @@ Rules the parser applies:
   brackets (e.g. `[VOICE: am_michael - narrator]`) is ignored.
 - Square-bracket fragments are stripped from the spoken text, so do not use
   brackets for content.
-- When the voice model is not downloaded the system-voice fallback strips `[VOICE:]`
+- When Kokoro is not downloaded the system-voice fallback strips `[VOICE:]`
   markers and maps `...p` to a paragraph break, `...s` to an ellipsis and `...c`
   to an em dash - one voice for the whole script.
 

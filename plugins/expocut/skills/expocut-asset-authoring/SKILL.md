@@ -1,10 +1,10 @@
 ---
 name: expocut-asset-authoring
 description: "Register custom assets in ExpoCut through the MCP asset-authoring tools - declarative FxSpec effects (fx_dry_run, fx_register_spec, fx_compose_from_template), custom 3D LUTs from .cube text (lut_register_custom, lut_list_custom, lut_delete_custom), reusable border presets (border_register_preset), custom mask shapes (mask_register_shape), plus the light-leak overlay and fade-on-edge setters in the same families. Covers the guard rails: the Settings tier (Off / Safe / Standard / Full), quotas and rate limits, the ai.<slug> id rule, persist versus in-memory, the audit log, and which registered assets render today. Use for \"register this LUT\", \"save this .cube\", \"reusable border\", \"custom mask shape\", \"author a new effect\", \"dry-run this FxSpec\", \"why does authoring say PermissionDenied\", \"clean up the assets you made\". Do not use for applying looks (expocut-fx-looks), grading (expocut-color-grading), or mask animation (expocut-compositing, expocut-motion-graphics)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -26,7 +26,7 @@ Author when: the user hands you a `.cube` file or wants a brand look baked from 
 
 ## Guard rails (read before the first call)
 
-Every register call runs the same ladder: availability, Settings tier, validator, quota and rate limit, then admit and audit. Results are objects, not exceptions: check `ok`, then `error` and `message`.
+Every register call runs the same ladder: feature flag, Settings tier, validator, quota and rate limit, then admit and audit. Results are objects, not exceptions: check `ok`, then `error` and `message`.
 
 Tier matrix (Settings, "AI may author assets"; default Off):
 
@@ -44,11 +44,11 @@ Quotas: 50 register calls per app session, 10 per rolling minute, and per instal
 
 Ids: every asset id must match `^(ai|user)\.[a-z0-9-]{1,48}$`; use `ai.` for ids you mint (`ai.brand-teal`, `ai.soft-pulse`). Uppercase, spaces, underscores and dots after the prefix are rejected with `InvalidId`.
 
-Error codes you will see in `error`: `Disabled` (authoring is not available in this build), `PermissionDenied` (tier too low), `InvalidId`, `InvalidSpec`, `AlreadyExists` (FX only; pass `overwriteIfExists: true`), `NotFound`, `EvalFailed` (dry-run expression), `ProbeFailed` (shader compile, NaN LUT, empty mask), `PersistFailed`, `DeleteFailed`, `OverQuota`, `RateLimited`.
+Error codes you will see in `error`: `Disabled` (compile flag), `PermissionDenied` (tier too low), `InvalidId`, `InvalidSpec`, `AlreadyExists` (FX only; pass `overwriteIfExists: true`), `NotFound`, `EvalFailed` (dry-run expression), `ProbeFailed` (shader compile, NaN LUT, empty mask), `PersistFailed`, `DeleteFailed`, `OverQuota`, `RateLimited`.
 
-Persistence: `persist: false` (default) keeps the asset in memory for this app run; `persist: true` writes a JSON file to the app's Documents folder. Delete tools remove the in-memory copy; add `alsoFromDisk: true` to remove the file as well.
+Persistence: `persist: false` (default) keeps the asset in memory for this app run; `persist: true` writes a JSON file under the app's Documents folder (`customFx/`, `customLuts/`, and the border and mask stores). Delete tools remove the in-memory copy; add `alsoFromDisk: true` to remove the file as well.
 
-Audit: each admit, reject, delete and disabled call appends to an audit log that the app's AI Operations screen shows, newest first. Tell the user what you registered so the log makes sense to them.
+Audit: each admit, reject, delete and disabled call appends to an in-memory audit log (last 1024 rows) that the app's AI Operations screen shows, newest first. Tell the user what you registered so the log makes sense to them.
 
 ## Before you start
 
@@ -78,11 +78,11 @@ fx_register_spec { spec: { ...same spec... }, persist: false }
 
 `fx_list_custom { author, kind, category }` returns up to 50 non-builtin specs. `fx_delete_custom { id, alsoFromDisk }` refuses built-ins.
 
-Tell the user up front: a registered FxSpec is stored, listed and audited, but the timeline setters accept only catalog effect ids, so passing an `ai.` id such as `ai.soft-pulse` as the `effectId` of `set_layer_effect` returns Unknown effectId. Treat FX authoring as a staging and validation surface (the dry-run samples are still useful for designing a curve you then express with `keyframe_add`), and use catalog effects for anything that has to render.
+Status you must tell the user: as of this build, a registered FxSpec is stored, listed and audited, but no timeline setter accepts an `ai.` effect id. `set_layer_effect` validates against the built-in effects registry, and the canvas and encoders render from that registry, so passing an `ai.` id such as `ai.soft-pulse` as the `effectId` of `set_layer_effect` returns Unknown effectId. Treat FX authoring as a staging and validation surface (the dry-run samples are still useful for designing a curve you then express with `keyframe_add`), and prefer catalog effects for anything that has to render today.
 
 ### LUTs (lut_*)
 
-`lut_register_custom { id, name, cubeText, persist }` accepts raw Adobe `.cube` text (max 1 MB; `LUT_3D_SIZE` 33 or smaller; 1D LUTs are accepted with a warning and render as a per-channel curve; any NaN rejects with `ProbeFailed`). Needs Standard or Full. The alternative `grade` form (`{ whiteBalance: { temperature, tint }, toneCurve: [[x, y], ...], lift: { lift, gamma, gain } }`) is accepted at Safe but is not rendered; use `cubeText`. Apply with `set_layer_lut { layerId, id, intensity }` or `apply_global_color_grade { lutId }`; both canvas and export resolve `ai.` cube LUTs.
+`lut_register_custom { id, name, cubeText, persist }` accepts raw Adobe `.cube` text (max 1 MB; `LUT_3D_SIZE` 33 or smaller; 1D LUTs are accepted with a warning and render as a per-channel curve; any NaN rejects with `ProbeFailed`). Needs Standard or Full. The alternative `grade` form (`{ whiteBalance: { temperature, tint }, toneCurve: [[x, y], ...], lift: { lift, gamma, gain } }`) is accepted at Safe, but no canvas or encoder path reads `grade` records, so it will not draw; use `cubeText`. Apply with `set_layer_lut { layerId, id, intensity }` or `apply_global_color_grade { lutId }`; both canvas and export resolve `ai.` cube LUTs.
 
 `lut_list_custom { author }` returns `{ id, name, author, kind }`; user-imported files and CDN downloads appear as `author: "user"`. `lut_delete_custom { id, alsoFromDisk }`.
 
@@ -96,7 +96,7 @@ Tell the user up front: a registered FxSpec is stored, listed and audited, but t
 
 `mask_register_shape { id, name, geometry, feather 0..100, invert, persist }` with `geometry` one of `{ kind: "rect" }`, `{ kind: "ellipse", rx, ry }` (each in (0, 1]), `{ kind: "polygon", points: [[x, y], ...] }` (3..256 points in 0..1), or `{ kind: "path", d }` (SVG path data using only M, L, Q, C and Z, max 2048 chars; arcs are rejected). A 64 by 64 bake probe rejects geometry with empty coverage or, for anything but `rect`, fully opaque coverage. `mask_list_custom { author }` and `mask_delete_custom { id, alsoFromDisk }`.
 
-`set_layer_mask` and `create_mask_animation` take only the 14 built-in shape names, so a registered shape cannot be applied from MCP; for a one-off silhouette use `set_layer_mask { layerId, shape: "path" }` with the same path data through `update_layer` if the built-in path shape covers it, or hand off to `expocut-compositing`.
+`set_layer_mask` and `create_mask_animation` take only the 14 built-in shape names, so a registered shape is not yet applicable from MCP; for a one-off silhouette use `set_layer_mask { layerId, shape: "path" }` with the same path data through `update_layer` if the built-in path shape covers it, or hand off to `expocut-compositing`.
 
 ### Light-leak overlays and fade masks (same families, no registration)
 

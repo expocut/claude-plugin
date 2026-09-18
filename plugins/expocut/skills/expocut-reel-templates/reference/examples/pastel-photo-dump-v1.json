@@ -1,0 +1,1619 @@
+{
+  "schemaVersion": "1.1",
+  "mode": "template",
+  "id": "pastel-photo-dump-v1",
+  "name": "Pastel Photo Dump",
+  "description": "8 photos pop into a pastel grid, then fire off full-screen \u2014 the CapCut memory-dump look, native to ExpoCut. Drop in 8 clips or photos and a song.",
+  "category": "For You",
+  "aspectRatio": "9:16",
+  "durationMs": 8780,
+  "slotCounts": {
+    "image": 8,
+    "text": 0,
+    "audio": 1
+  },
+  "slots": [
+    {
+      "id": "s_p1",
+      "label": "Photo 1",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo1.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo1.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p2",
+      "label": "Photo 2",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo2.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo2.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p3",
+      "label": "Photo 3",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo3.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo3.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p4",
+      "label": "Photo 4",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo4.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo4.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p5",
+      "label": "Photo 5",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo5.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo5.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p6",
+      "label": "Photo 6",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo6.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo6.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p7",
+      "label": "Photo 7",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo7.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo7.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p8",
+      "label": "Photo 8",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo8.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo8.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_music",
+      "label": "Music",
+      "kind": "audio",
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+        "remoteUrl": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3"
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "id": "t_bg",
+      "type": "image",
+      "name": "Background",
+      "trackIndex": 30
+    },
+    {
+      "id": "t_grid1",
+      "type": "image",
+      "name": "Grid photo 1",
+      "trackIndex": 19
+    },
+    {
+      "id": "t_dump1",
+      "type": "image",
+      "name": "Dump photo 1",
+      "trackIndex": 9
+    },
+    {
+      "id": "t_grid2",
+      "type": "image",
+      "name": "Grid photo 2",
+      "trackIndex": 18
+    },
+    {
+      "id": "t_dump2",
+      "type": "image",
+      "name": "Dump photo 2",
+      "trackIndex": 8
+    },
+    {
+      "id": "t_grid3",
+      "type": "image",
+      "name": "Grid photo 3",
+      "trackIndex": 17
+    },
+    {
+      "id": "t_dump3",
+      "type": "image",
+      "name": "Dump photo 3",
+      "trackIndex": 7
+    },
+    {
+      "id": "t_grid4",
+      "type": "image",
+      "name": "Grid photo 4",
+      "trackIndex": 16
+    },
+    {
+      "id": "t_dump4",
+      "type": "image",
+      "name": "Dump photo 4",
+      "trackIndex": 6
+    },
+    {
+      "id": "t_grid5",
+      "type": "image",
+      "name": "Grid photo 5",
+      "trackIndex": 15
+    },
+    {
+      "id": "t_dump5",
+      "type": "image",
+      "name": "Dump photo 5",
+      "trackIndex": 5
+    },
+    {
+      "id": "t_grid6",
+      "type": "image",
+      "name": "Grid photo 6",
+      "trackIndex": 14
+    },
+    {
+      "id": "t_dump6",
+      "type": "image",
+      "name": "Dump photo 6",
+      "trackIndex": 4
+    },
+    {
+      "id": "t_grid7",
+      "type": "image",
+      "name": "Grid photo 7",
+      "trackIndex": 13
+    },
+    {
+      "id": "t_dump7",
+      "type": "image",
+      "name": "Dump photo 7",
+      "trackIndex": 3
+    },
+    {
+      "id": "t_grid8",
+      "type": "image",
+      "name": "Grid photo 8",
+      "trackIndex": 12
+    },
+    {
+      "id": "t_dump8",
+      "type": "image",
+      "name": "Dump photo 8",
+      "trackIndex": 2
+    },
+    {
+      "id": "t_music",
+      "type": "audio",
+      "name": "Music",
+      "trackIndex": 31
+    }
+  ],
+  "layers": [
+    {
+      "id": "L_bg",
+      "type": "image",
+      "name": "Background",
+      "trackIndex": 30,
+      "startTime": 0,
+      "duration": 999999,
+      "content": "",
+      "svgContent": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 640'><defs><linearGradient id='bgDumpG' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='#FDFBF9'/><stop offset='100%' stop-color='#F7EFEA'/></linearGradient></defs><rect x='0' y='0' width='360' height='640' fill='url(#bgDumpG)'/></svg>",
+      "naturalWidth": 360,
+      "naturalHeight": 640,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100
+    },
+    {
+      "id": "L_grid1",
+      "type": "image",
+      "name": "Grid photo 1",
+      "slotRef": "s_p1",
+      "trackIndex": 19,
+      "startTime": 280,
+      "duration": 3770,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo1.jpg",
+      "position": {
+        "x": 15.283,
+        "y": 2.777
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo1.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo1"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 280000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 540000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 700000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 280000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 450000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 280000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 580000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump1",
+      "type": "image",
+      "name": "Dump photo 1",
+      "slotRef": "s_p1",
+      "trackIndex": 9,
+      "startTime": 4050,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo1.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo1.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo1"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 4050000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 4610000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid2",
+      "type": "image",
+      "name": "Grid photo 2",
+      "slotRef": "s_p2",
+      "trackIndex": 18,
+      "startTime": 620,
+      "duration": 3430,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo2.jpg",
+      "position": {
+        "x": 51.406,
+        "y": 2.777
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo2.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo2"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 620000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 880000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 1040000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 620000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 790000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 620000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 920000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump2",
+      "type": "image",
+      "name": "Dump photo 2",
+      "slotRef": "s_p2",
+      "trackIndex": 8,
+      "startTime": 4610,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo2.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo2.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo2"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 4610000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 5170000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid3",
+      "type": "image",
+      "name": "Grid photo 3",
+      "slotRef": "s_p3",
+      "trackIndex": 17,
+      "startTime": 960,
+      "duration": 3090,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo3.jpg",
+      "position": {
+        "x": 15.283,
+        "y": 26.457
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo3.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo3"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 960000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1220000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 1380000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 960000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1130000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 960000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1260000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump3",
+      "type": "image",
+      "name": "Dump photo 3",
+      "slotRef": "s_p3",
+      "trackIndex": 7,
+      "startTime": 5170,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo3.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo3.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo3"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 5170000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 5730000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid4",
+      "type": "image",
+      "name": "Grid photo 4",
+      "slotRef": "s_p4",
+      "trackIndex": 16,
+      "startTime": 1300,
+      "duration": 2750,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo4.jpg",
+      "position": {
+        "x": 51.406,
+        "y": 26.457
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo4.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo4"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 1300000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1560000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 1720000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 1300000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1470000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 1300000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1600000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump4",
+      "type": "image",
+      "name": "Dump photo 4",
+      "slotRef": "s_p4",
+      "trackIndex": 6,
+      "startTime": 5730,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo4.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo4.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo4"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 5730000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 6290000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid5",
+      "type": "image",
+      "name": "Grid photo 5",
+      "slotRef": "s_p5",
+      "trackIndex": 15,
+      "startTime": 1640,
+      "duration": 2410,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo5.jpg",
+      "position": {
+        "x": 15.283,
+        "y": 50.137
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo5.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo5"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 1640000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1900000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 2060000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 1640000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1810000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 1640000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1940000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump5",
+      "type": "image",
+      "name": "Dump photo 5",
+      "slotRef": "s_p5",
+      "trackIndex": 5,
+      "startTime": 6290,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo5.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo5.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo5"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 6290000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 6850000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid6",
+      "type": "image",
+      "name": "Grid photo 6",
+      "slotRef": "s_p6",
+      "trackIndex": 14,
+      "startTime": 1980,
+      "duration": 2070,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo6.jpg",
+      "position": {
+        "x": 51.406,
+        "y": 50.137
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo6.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo6"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 1980000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2240000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 2400000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 1980000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2150000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 1980000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2280000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump6",
+      "type": "image",
+      "name": "Dump photo 6",
+      "slotRef": "s_p6",
+      "trackIndex": 4,
+      "startTime": 6850,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo6.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo6.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo6"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 6850000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 7410000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid7",
+      "type": "image",
+      "name": "Grid photo 7",
+      "slotRef": "s_p7",
+      "trackIndex": 13,
+      "startTime": 2320,
+      "duration": 1730,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo7.jpg",
+      "position": {
+        "x": 15.283,
+        "y": 73.816
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo7.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo7"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 2320000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2580000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 2740000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 2320000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2490000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 2320000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2620000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump7",
+      "type": "image",
+      "name": "Dump photo 7",
+      "slotRef": "s_p7",
+      "trackIndex": 3,
+      "startTime": 7410,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo7.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo7.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo7"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 7410000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 7970000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid8",
+      "type": "image",
+      "name": "Grid photo 8",
+      "slotRef": "s_p8",
+      "trackIndex": 12,
+      "startTime": 2660,
+      "duration": 1390,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo8.jpg",
+      "position": {
+        "x": 51.406,
+        "y": 73.816
+      },
+      "scale": 0.917,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo8.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo8"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 26,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 2660000,
+                "v": 0.4585,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2920000,
+                "v": 0.972,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 3080000,
+                "v": 0.917,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 2660000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2830000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 2660000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 2960000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_dump8",
+      "type": "image",
+      "name": "Dump photo 8",
+      "slotRef": "s_p8",
+      "trackIndex": 2,
+      "startTime": 7970,
+      "duration": 560,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo8.jpg",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100,
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/photo8.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo8"
+      },
+      "fadeInMs": 110,
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 7970000,
+                "v": 1.05,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 8530000,
+                "v": 1.16,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_music",
+      "type": "audio",
+      "name": "Music",
+      "slotRef": "s_music",
+      "trackIndex": 31,
+      "startTime": 0,
+      "duration": 8780,
+      "content": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+      "position": {
+        "x": 50,
+        "y": 50
+      },
+      "scale": 1,
+      "volume": 0.8,
+      "fadeInMs": 300,
+      "fadeOutMs": 900,
+      "remoteSource": {
+        "url": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+        "kind": "freesound",
+        "sourceId": "761372"
+      }
+    }
+  ],
+  "transitions": [],
+  "previewVideoUri": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/preview.mp4",
+  "thumbnail": "https://expocut.b-cdn.net/reels/assets/pastel-photo-dump-v1/thumbnail.jpg"
+}

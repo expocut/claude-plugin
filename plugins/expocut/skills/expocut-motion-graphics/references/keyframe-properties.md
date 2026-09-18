@@ -1,6 +1,6 @@
 # Keyframeable properties (58)
 
-Generated from list_keyframe_properties and the app's keyframe type definitions.
+Generated from list_keyframe_properties and the keyframe substrate (src/keyframes/types.ts).
 Scalar properties go through keyframe_add (numeric `value`, optional `interp`); discrete
 properties go through keyframe_add_discrete (string or boolean `value`, held-step, no
 interpolation). All times are timeline milliseconds on the tool calls (`timeMs`) and

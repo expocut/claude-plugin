@@ -1,10 +1,10 @@
 ---
 name: expocut-data-widgets
 description: "Builds data and overlay widgets in ExpoCut through the in-app MCP server: bar chart races from CSV or arrays, countdowns, stopwatches and live clocks, scoreboards and stat bars, polls, follower counters and like bursts, comment bubbles, news tickers, breaking banners and news alerts, QR codes, weather cards, quote cards, caption boxes, search-bar typing, confetti and fire meters, plus phone, tablet and browser device mockups for app demos. Use when the user asks for a stats video, chart race, data visualisation, timer, countdown, score bug, live ticker, subscriber counter, poll sticker, QR code, \"show my app in a phone frame\", or animated numbers. Do not use for plain titles, captions or lower thirds (expocut-kinetic-captions), for shape grids and screen layouts (expocut-shapes-layouts), or for importing Lottie files (expocut-template-import)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

@@ -1,6 +1,6 @@
 # Tool signatures used by expocut-audio-post
 
-<!-- generated from the app's live MCP registry by ExpoCut's skill-parity test; do not edit by hand -->
+<!-- generated from the live MCP registry by apps/mobile/src/mcp/__tests__/skillsParity.test.ts; do not edit by hand -->
 
 Exact names, parameters and enums of every tool this skill mentions. `*` marks a required parameter.
 Time arguments named startTime / duration / *Sec are seconds; keyframe timeMs is milliseconds.
@@ -207,7 +207,7 @@ Push a session-scoped checkpoint of the editor state onto the undo stack. Return
 
 ## separate_audio
 
-Separate a clip into vocals/drums/bass/other stems on-device (non-destructive — adds 4 audio stem layers, source untouched). tier: "fast" (lightweight, low-end/quick) or "studio" (high quality; falls back to fast if it cannot run).
+Separate a clip into vocals/drums/bass/other stems on-device (non-destructive — adds 4 audio stem layers, source untouched). tier: "fast" (Spleeter, low-end/quick) or "studio" (Demucs, high quality; falls back to fast if it cannot run).
 
 | param | type | notes |
 | --- | --- | --- |
@@ -345,7 +345,7 @@ Detach a video layer's embedded audio into a separate audio Layer + Track. The v
 
 ## update_layer
 
-Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer.
+Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer. rotationX / rotationY tilt the layer out of plane in degrees (0 = flat, clamped to ±75) — that is the card-in-3D-space move; plain `rotation` remains the in-plane spin. Supported on every visual layer type that can rotate at all — image, video, base video, text, shape, shape-widget, collage and Lottie — on canvas and at export. Android adds transcript and lower-third; on iOS those two carry no layer rotation in the encoder at all, so they stay flat there.
 
 | param | type | notes |
 | --- | --- | --- |

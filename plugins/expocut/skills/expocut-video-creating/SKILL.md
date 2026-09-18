@@ -1,10 +1,10 @@
 ---
 name: expocut-video-creating
 description: "Entry skill for making any video in the ExpoCut mobile editor through its in-app MCP server: asks two or three intent questions (platform, length, vibe, source), creates or opens the project, adds video, image and audio from local files or Pexels and Freesound stock, sequences clips, trims and splits, drops a title, previews cheaply, saves and exports. Use whenever someone says make a video, reel, TikTok, Short, YouTube video, promo, montage, slideshow, edit my clips, add stock footage, add music, put a title on it, trim, split, export, render, or wants to start. Also the router: it names all sixteen expocut-* specialists (editor-ops, motion-graphics, compositing, social-speed-edit, color-grading, fx-looks, audio-post, voice-narration, kinetic-captions, data-widgets, shapes-layouts, template-import, templates-brand, reel-templates, asset-authoring, retention-playbook) with trigger phrases. Not for keyframes, grading, captions, stems or template authoring alone; open that sibling."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

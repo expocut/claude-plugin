@@ -1,6 +1,6 @@
 # Tool signatures used by expocut-voice-narration
 
-<!-- generated from the app's live MCP registry by ExpoCut's skill-parity test; do not edit by hand -->
+<!-- generated from the live MCP registry by apps/mobile/src/mcp/__tests__/skillsParity.test.ts; do not edit by hand -->
 
 Exact names, parameters and enums of every tool this skill mentions. `*` marks a required parameter.
 Time arguments named startTime / duration / *Sec are seconds; keyframe timeMs is milliseconds.
@@ -99,7 +99,7 @@ Change a layer's z-order. "front" pulls it to trackIndex 0 (top); "back" pushes 
 
 ## separate_audio
 
-Separate a clip into vocals/drums/bass/other stems on-device (non-destructive — adds 4 audio stem layers, source untouched). tier: "fast" (lightweight, low-end/quick) or "studio" (high quality; falls back to fast if it cannot run).
+Separate a clip into vocals/drums/bass/other stems on-device (non-destructive — adds 4 audio stem layers, source untouched). tier: "fast" (Spleeter, low-end/quick) or "studio" (Demucs, high quality; falls back to fast if it cannot run).
 
 | param | type | notes |
 | --- | --- | --- |
@@ -147,7 +147,7 @@ Set the track-level volume multiplier (0..2.5).
 
 ## transcribe_audio
 
-Transcribe an audio file using the on-device speech-to-text model. Returns time-stamped text segments. Requires the model to be downloaded already (open the app's transcribe panel to download). Default model: "tiny" — faster but less accurate; pass "base" for better accuracy at the cost of speed.
+Transcribe an audio file using on-device Whisper. Returns time-stamped text segments. Requires the Whisper model to be downloaded already (open the app's transcribe panel to download). Default model: "tiny" — faster but less accurate; pass "base" for better accuracy at the cost of speed.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -157,7 +157,7 @@ Transcribe an audio file using the on-device speech-to-text model. Returns time-
 
 ## tts_add_audio_layer
 
-Generate speech with the on-device TTS engine (falls back to the system voice if the voice model is not downloaded) and add the resulting WAV as an audio layer. Use tts_list_voices to find voiceId. Layer duration defaults to the generated audio length.
+Generate speech with the on-device TTS engine (Kokoro; falls back to AVSpeech if Kokoro not downloaded) and add the resulting WAV as an audio layer. Use tts_list_voices to find voiceId. Layer duration defaults to the generated audio length.
 
 Script markers — embed in `text` for dramatic pacing:
   ...p   paragraph pause (≈850 ms silence)
@@ -184,7 +184,7 @@ Call tts_validate_script first to preview the segment count and per-voice breakd
 
 ## tts_list_voices
 
-List all on-device TTS voices. Voice ids encode accent + gender: af_* American female, am_* American male, bf_* British female, bm_* British male. Use the id with tts_add_audio_layer (added in step 5.5).
+List all Kokoro TTS voices. Voice ids encode accent + gender: af_* American female, am_* American male, bf_* British female, bm_* British male. Use the id with tts_add_audio_layer (added in step 5.5).
 
 No parameters.
 
@@ -199,7 +199,7 @@ Parse a TTS script WITHOUT synthesising. Returns the segment list — each segme
 
 ## update_layer
 
-Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer.
+Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer. rotationX / rotationY tilt the layer out of plane in degrees (0 = flat, clamped to ±75) — that is the card-in-3D-space move; plain `rotation` remains the in-plane spin. Supported on every visual layer type that can rotate at all — image, video, base video, text, shape, shape-widget, collage and Lottie — on canvas and at export. Android adds transcript and lower-third; on iOS those two carry no layer rotation in the encoder at all, so they stay flat there.
 
 | param | type | notes |
 | --- | --- | --- |

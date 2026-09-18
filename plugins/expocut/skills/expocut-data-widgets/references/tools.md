@@ -1,6 +1,6 @@
 # Tool signatures used by expocut-data-widgets
 
-<!-- generated from the app's live MCP registry by ExpoCut's skill-parity test; do not edit by hand -->
+<!-- generated from the live MCP registry by apps/mobile/src/mcp/__tests__/skillsParity.test.ts; do not edit by hand -->
 
 Exact names, parameters and enums of every tool this skill mentions. `*` marks a required parameter.
 Time arguments named startTime / duration / *Sec are seconds; keyframe timeMs is milliseconds.
@@ -13,7 +13,7 @@ Add a clean-room device-frame overlay (phone / tablet / browser) with a TRANSPAR
 | --- | --- | --- |
 | device | string | one of: `phone`, `tablet`, `browser` — phone \| tablet \| browser. Default phone. |
 | color | string | Frame body colour #RRGGBB. Default #1A1A1F. |
-| widthFrac | number | % of canvas width (default 32). |
+| widthFrac | number | Painted frame width as % of canvas width (default 32). |
 | x | number | Top-left x percent 0..100 (default centres horizontally). |
 | y | number | Top-left y percent 0..100 (default centres vertically). |
 | name | string |  |
@@ -24,14 +24,12 @@ Add a clean-room device-frame overlay (phone / tablet / browser) with a TRANSPAR
 
 ## add_lottie_layer
 
-Add a Lottie animation layer (motion graphics, stickers, icons). Pass either uri (path to a Lottie JSON file) or presetId (bundled animation). Use playbackSpeed to speed up / slow down (1.0 default) and loop=true to repeat for the full layer duration.
+Add a Lottie animation layer (motion graphics, stickers, icons). Pass either uri (a file:// path, an http(s) URL, or the Lottie JSON text itself) or presetId (bundled animation: pulse-circle, spinning-star, bouncing-heart, pulsing-star, fade-ring, spinning-ring, pulse-glow, rotating-rings, pulsing-circles, floating-stars, slide-line, pulse-dot, corner-star, expand-ring, flash-star, spin-rings, zoom-burst, sparkle-burst, floating-dots). The JSON is read and stored inline, which is what the renderer plays. PLACEMENT: x/y is the TOP-LEFT corner in canvas % (default 50/50); the animation paints in the 150 pt design square (get_canvas_info.layerBaseWidthPct of the canvas width). Use playbackSpeed to speed up / slow down (1.0 default) and loop=true to repeat for the full layer duration.
 
 | param | type | notes |
 | --- | --- | --- |
 | uri | string |  |
 | presetId | string |  |
-| playbackSpeed | number |  |
-| loop | boolean |  |
 | startTime | number |  |
 | duration | number |  |
 | x | number |  |
@@ -39,10 +37,12 @@ Add a Lottie animation layer (motion graphics, stickers, icons). Pass either uri
 | scale | number |  |
 | rotation | number |  |
 | opacity | number |  |
+| playbackSpeed | number |  |
+| loop | boolean |  |
 
 ## add_lower_third_layer
 
-Add a lower-third title card layer (broadcast-style name + role overlay). Use list_lower_thirds for preset ids. Pass lines[] to override the default placeholder text.
+Add a lower-third title card layer (broadcast-style name + role overlay). Use list_lower_thirds for preset ids. Pass lines[] to override the default placeholder text. PLACEMENT: x/y is the TOP-LEFT corner in canvas % (default 50/75, i.e. the card starts at the horizontal centre, in the lower quarter); the card is CONTENT-SIZED (describe_canvas reports the default square as approx) and most presets animate in and out within the layer duration.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ Add a lower-third title card layer (broadcast-style name + role overlay). Use li
 
 ## add_shape_widget
 
-Add a shape-widget layer: rows of shapes (1–8 per row) with an animation mode. Omit rows for the default 3-row layout. Each row: {shape, count, fillColor}. animation one of: none, scroll-up, scroll-down, scroll-left, scroll-right, continue, parallel, juggling, swapping, zoom-in, zoom-shapes. Position via x/y (top-left percent), startTime/duration in seconds.
+Add a shape-widget layer: rows of shapes (1–8 per row) with an animation mode. Omit rows for the default 3-row layout. Each row: {shape, count, fillColor}. animation one of: none, scroll-up, scroll-down, scroll-left, scroll-right, continue, parallel, juggling, swapping, zoom-in, zoom-shapes. PLACEMENT: x/y is the TOP-LEFT of a SQUARE box (the 150 pt design square = get_canvas_info.layerBaseWidthPct of the canvas width); the rows are centred vertically inside it, so a single row paints in the middle of that square, not at y. startTime/duration in seconds.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ Add a shape-widget layer: rows of shapes (1–8 per row) with an animation mode.
 
 ## add_text_layer
 
-Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text auto-fits the canvas regardless of aspect ratio (9:16, 16:9, 1:1) — perfect for title cards. Use verticalAnchor="top|center|bottom" instead of computing y. startTime/duration are seconds. Use transitionIn/Out (e.g. "fade", "scale") for entrance/exit animations.
+Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text auto-fits the canvas regardless of aspect ratio (9:16, 16:9, 1:1) — perfect for title cards. x/y are the TOP-LEFT corner of the text block in canvas % (fullWidth pins x=0). Use verticalAnchor="top|center|bottom" instead of computing y: it places the block top at 12 %, the glyph centre at 50 %, or the block bottom at 88 % on any aspect. startTime/duration are seconds. Use transitionIn/Out (e.g. "fade", "scale") for entrance/exit animations.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -111,7 +111,7 @@ Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text au
 
 ## add_video_layer
 
-Add a video layer from any local file:// URI (camera roll exports, downloaded clips, TTS-generated screens, etc). For Pexels stock specifically use add_stock_video_layer. mediaOffsetSec sets the source in-point (e.g. mediaOffsetSec=8 to skip first 8s of source). The layer is fit-to-screen (full-canvas) by default; pass stretchToCanvas:false to letterbox.
+Add a video layer from any local file:// URI (camera roll exports, downloaded clips, TTS-generated screens, etc). For Pexels stock specifically use add_stock_video_layer. mediaOffsetSec sets the source in-point (e.g. mediaOffsetSec=8 to skip first 8s of source). The layer is fit-to-screen (full-canvas) by default; pass stretchToCanvas:false to letterbox (x/y = TOP-LEFT corner in canvas %, default 0/0; the unscaled box is the 150 pt design square aspect-fitted to the source, whose natural size is probed at add time and stored).
 
 | param | type | notes |
 | --- | --- | --- |
@@ -130,7 +130,7 @@ Add a video layer from any local file:// URI (camera roll exports, downloaded cl
 
 ## add_widget_layer
 
-Add a widget layer (clock, scoreboard, poll, qr-code, weather, caption, confetti, …). Use list_widgets to discover valid widgetId values. config is a partial — fields you omit are filled by the widget's default factory. Position via x/y (top-left percent), startTime/duration in seconds.
+Add a widget layer (clock, scoreboard, poll, qr-code, weather, caption, confetti, …). Use list_widgets to discover valid widgetId values. config is a partial — fields you omit are filled by the widget's default factory. PLACEMENT: x/y is the TOP-LEFT corner in canvas % (default 50/50). Widgets are CONTENT-SIZED: the painted box hugs the widget (a clock pill is wider and much shorter than the default square that describe_canvas reports as approx). startTime/duration in seconds.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -146,7 +146,7 @@ Add a widget layer (clock, scoreboard, poll, qr-code, weather, caption, confetti
 
 ## capture_canvas
 
-Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024).
+Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024). ANDROID CAVEAT: this capture is a software view-snapshot, which does NOT include camera-based 3D — a layer with rotationX/rotationY renders FLAT here even though the real screen and the export both show the tilt. When that applies to the frame you asked for, the result carries a `warnings` entry naming the affected layers; use capture_export_frame to see the tilt. Do not read a flat capture as a tilt bug on Android.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -169,7 +169,7 @@ P3.1: render ONE export-accurate frame of the OPEN project at timeSec (default p
 
 ## describe_canvas
 
-Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden or scheduled outside this frame. This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
+Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden, scheduled outside this frame, or non-visual (audio never paints and is never listed). This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -177,7 +177,7 @@ Describe — as structured TEXT, no image — exactly what is composited at a gi
 
 ## get_canvas_info
 
-Return the canvas/preview context in one cheap call (no image, editor need not be mounted): aspectRatio + numeric aspect, pixel width/height, fps, format, quality, total duration (ms + sec), estimated frame count, layer/track counts, current playhead, isPlaying and the selected layer id. Use this to understand the frame size and timeline length before placing layers or capturing.
+Return the canvas/preview context in one cheap call (no image, editor need not be mounted): aspectRatio + numeric aspect, pixel width/height (from the stored resolution, else the 1080p preset — resolutionAssumed=true), the editor canvas size in points, layerBaseWidthPct / layerBaseHeightPct (how big an unsized layer lands, as % of the canvas), fps, format, quality, total duration (ms + sec), estimated frame count, layer/track counts, current playhead, isPlaying and the selected layer id. Use this to understand the frame size, the default layer size and the timeline length before placing layers or capturing.
 
 No parameters.
 
@@ -249,7 +249,7 @@ Jump directly to a specific checkpoint by id.
 
 ## update_layer
 
-Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer.
+Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer. rotationX / rotationY tilt the layer out of plane in degrees (0 = flat, clamped to ±75) — that is the card-in-3D-space move; plain `rotation` remains the in-plane spin. Supported on every visual layer type that can rotate at all — image, video, base video, text, shape, shape-widget, collage and Lottie — on canvas and at export. Android adds transcript and lower-third; on iOS those two carry no layer rotation in the encoder at all, so they stay flat there.
 
 | param | type | notes |
 | --- | --- | --- |

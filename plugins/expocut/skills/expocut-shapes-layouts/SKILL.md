@@ -1,10 +1,10 @@
 ---
 name: expocut-shapes-layouts
 description: "Draws and styles vector graphics in ExpoCut through the in-app MCP server: 91 shape presets, fills (solid, gradient, 16 pattern textures, 130 mesh gradients, photo or video), outlines, glow, 9 one-tap shape styles, canvas-relative sizing for bars and plates, 12 screen layouts that tile the canvas into panels, 134 brush strokes (arrows, circles, underlines, sparkles, neon, comic, splatter, ink, marker, paint, spray, scribble) as tintable vector layers, raw SVG logos and icons, animated shape-widget grids, and borders and glow on any layer. Use when the user asks for a background plate, colour block, gradient or mesh backdrop, pill, bar, strip, divider, frame, badge, arrow, doodle, underline, scribble, sticker, SVG logo, split screen, collage grid, slanted panels, neon outline or glowing border. Do not use for text (expocut-kinetic-captions), counters and charts (expocut-data-widgets), masks and mattes (expocut-compositing), or keyframe animation (expocut-motion-graphics)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -121,7 +121,7 @@ set_layer_border { layerId: "shape_…", enabled: true, width: 2, color: "#FFD93
 ## Pitfalls
 
 - Pass both canvasRelativeWidth and canvasRelativeHeight; one alone is ignored and the shape falls back to the 150-point box.
-- For a full-bleed background that must survive export, prefer explicit sizing over stretchToCanvas: canvasRelativeWidth 104, canvasRelativeHeight 103, position x -2, y -1.5, so the edges bleed off-frame. Verify with capture_export_frame { timeSec }.
+- stretchToCanvas draws full-bleed on the canvas, but some native encoders have rendered such layers at their unstretched size (black background, offset block). If an exported background comes out wrong, size it explicitly instead: canvasRelativeWidth 104, canvasRelativeHeight 103, position x -2, y -1.5, so the edges bleed off-frame. Verify with capture_export_frame { timeSec }.
 - set_shape_fill switches the whole fill: choosing "solid" drops a mesh, choosing "mesh" drops a media fill. gradient needs 2 or more colours; texture and mesh ids are validated; image/video needs mediaUri.
 - opacity in set_shape_fill and set_shape_outline is the shape's own opacity (shapeConfig.opacity), separate from the layer opacity in update_layer.
 - set_shape_glow, set_shape_canvas_relative_size, set_shape, set_shape_fill, set_shape_outline and set_shape_style refuse layers that are not shapes (SVG and mockup layers are images). Use set_layer_border and set_layer_border_glow on those.

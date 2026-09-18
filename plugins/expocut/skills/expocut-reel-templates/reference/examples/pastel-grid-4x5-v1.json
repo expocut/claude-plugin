@@ -1,0 +1,619 @@
+{
+  "schemaVersion": "1.1",
+  "mode": "template",
+  "id": "pastel-grid-4x5-v1",
+  "name": "Pastel Grid (4:5)",
+  "description": "Four photos pop into a clean 2\u00d72 pastel grid for the feed. Compact, fast, muted-friendly.",
+  "category": "For You",
+  "aspectRatio": "4:5",
+  "durationMs": 5000,
+  "slotCounts": {
+    "image": 4,
+    "text": 0,
+    "audio": 1
+  },
+  "slots": [
+    {
+      "id": "s_p1",
+      "label": "Photo 1",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo1.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo1.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p2",
+      "label": "Photo 2",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo2.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo2.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p3",
+      "label": "Photo 3",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo3.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo3.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_p4",
+      "label": "Photo 4",
+      "kind": "image",
+      "required": true,
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo4.jpg",
+        "remoteUrl": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo4.jpg",
+        "width": 1080,
+        "height": 1350
+      }
+    },
+    {
+      "id": "s_music",
+      "label": "Music",
+      "kind": "audio",
+      "defaultBinding": {
+        "kind": "media",
+        "uri": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+        "remoteUrl": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3"
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "id": "t_bg",
+      "type": "image",
+      "name": "Background",
+      "trackIndex": 30
+    },
+    {
+      "id": "t_grid1",
+      "type": "image",
+      "name": "Grid photo 1",
+      "trackIndex": 19
+    },
+    {
+      "id": "t_grid2",
+      "type": "image",
+      "name": "Grid photo 2",
+      "trackIndex": 18
+    },
+    {
+      "id": "t_grid3",
+      "type": "image",
+      "name": "Grid photo 3",
+      "trackIndex": 17
+    },
+    {
+      "id": "t_grid4",
+      "type": "image",
+      "name": "Grid photo 4",
+      "trackIndex": 16
+    },
+    {
+      "id": "t_music",
+      "type": "audio",
+      "name": "Music",
+      "trackIndex": 31
+    }
+  ],
+  "layers": [
+    {
+      "id": "L_bg",
+      "type": "image",
+      "name": "Background",
+      "trackIndex": 30,
+      "startTime": 0,
+      "duration": 999999,
+      "content": "",
+      "svgContent": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 450'><defs><linearGradient id='bgGridG' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='#FDFBF9'/><stop offset='100%' stop-color='#F7EFEA'/></linearGradient></defs><rect x='0' y='0' width='360' height='450' fill='url(#bgGridG)'/></svg>",
+      "naturalWidth": 360,
+      "naturalHeight": 450,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "scale": 1,
+      "rotation": 0,
+      "fitMode": "fill",
+      "stretchToCanvas": true,
+      "canvasRelativeWidth": 100,
+      "canvasRelativeHeight": 100
+    },
+    {
+      "id": "L_grid1",
+      "type": "image",
+      "name": "Grid photo 1",
+      "slotRef": "s_p1",
+      "trackIndex": 19,
+      "startTime": 250,
+      "duration": 4750,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo1.jpg",
+      "position": {
+        "x": 14.444,
+        "y": 14.889
+      },
+      "scale": 1.0,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo1.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo1"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 30,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 250000,
+                "v": 0.5,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 510000,
+                "v": 1.06,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 670000,
+                "v": 1.0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 250000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 420000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 250000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 550000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid2",
+      "type": "image",
+      "name": "Grid photo 2",
+      "slotRef": "s_p2",
+      "trackIndex": 18,
+      "startTime": 550,
+      "duration": 4450,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo2.jpg",
+      "position": {
+        "x": 52.222,
+        "y": 14.889
+      },
+      "scale": 1.0,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo2.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo2"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 30,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 550000,
+                "v": 0.5,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 810000,
+                "v": 1.06,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 970000,
+                "v": 1.0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 550000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 720000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 550000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 850000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid3",
+      "type": "image",
+      "name": "Grid photo 3",
+      "slotRef": "s_p3",
+      "trackIndex": 17,
+      "startTime": 850,
+      "duration": 4150,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo3.jpg",
+      "position": {
+        "x": 14.444,
+        "y": 51.778
+      },
+      "scale": 1.0,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo3.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo3"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 30,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 850000,
+                "v": 0.5,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1110000,
+                "v": 1.06,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 1270000,
+                "v": 1.0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 850000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1020000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 850000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1150000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_grid4",
+      "type": "image",
+      "name": "Grid photo 4",
+      "slotRef": "s_p4",
+      "trackIndex": 16,
+      "startTime": 1150,
+      "duration": 3850,
+      "content": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo4.jpg",
+      "position": {
+        "x": 52.222,
+        "y": 51.778
+      },
+      "scale": 1.0,
+      "rotation": 0,
+      "fitMode": "contain",
+      "naturalWidth": 1080,
+      "naturalHeight": 1350,
+      "remoteSource": {
+        "url": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/photo4.jpg",
+        "kind": "cdn",
+        "sourceId": "pd-photo4"
+      },
+      "border": {
+        "enabled": true,
+        "width": 5,
+        "color": "#FFFFFF",
+        "pattern": "solid",
+        "cornerRadius": 30,
+        "position": "inside",
+        "sides": {
+          "top": "solid",
+          "right": "solid",
+          "bottom": "solid",
+          "left": "solid"
+        }
+      },
+      "keyframes": {
+        "tracks": [
+          {
+            "property": "transform.scale",
+            "keyframes": [
+              {
+                "t": 1150000,
+                "v": 0.5,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1410000,
+                "v": 1.06,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              },
+              {
+                "t": 1570000,
+                "v": 1.0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeInOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "opacity",
+            "keyframes": [
+              {
+                "t": 1150000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1320000,
+                "v": 1,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          },
+          {
+            "property": "fx.blur",
+            "keyframes": [
+              {
+                "t": 1150000,
+                "v": 9,
+                "out": {
+                  "type": "preset",
+                  "name": "linear"
+                }
+              },
+              {
+                "t": 1450000,
+                "v": 0,
+                "out": {
+                  "type": "preset",
+                  "name": "easeOut"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "L_music",
+      "type": "audio",
+      "name": "Music",
+      "slotRef": "s_music",
+      "trackIndex": 31,
+      "startTime": 0,
+      "duration": 5000,
+      "content": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+      "position": {
+        "x": 50,
+        "y": 50
+      },
+      "scale": 1,
+      "volume": 0.8,
+      "fadeInMs": 300,
+      "fadeOutMs": 900,
+      "remoteSource": {
+        "url": "https://cdn.freesound.org/previews/761/761372_16024318-hq.mp3",
+        "kind": "freesound",
+        "sourceId": "761372"
+      }
+    }
+  ],
+  "transitions": [],
+  "previewVideoUri": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/preview.mp4",
+  "thumbnail": "https://expocut.b-cdn.net/reels/assets/pastel-grid-4x5-v1/thumbnail.jpg"
+}

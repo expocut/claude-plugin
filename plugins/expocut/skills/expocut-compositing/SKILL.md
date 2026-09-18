@@ -1,10 +1,10 @@
 ---
 name: expocut-compositing
-description: "Control how layers composite in the ExpoCut mobile editor through its MCP server - 14 blend modes, alpha/luma track mattes, adjustment layers, parent and null rigs, time remapping (freeze frame, reverse, ramps), stacked-alpha overlay packs, alpha mode, working colour space, 14 mask shapes including Video-in-Text, chroma key, fit mode, anchor, crop, pan, blur fill, timed fades, fade-on-edge masks, and video-audio unlink, relink and sync nudges. Use when the user says blend mode, multiply, screen, overlay, matte, cut out, mask to a shape, green screen, remove background, adjustment layer, parent, null, freeze frame, reverse clip, time remap, crop, fit, fill the frame, letterbox, blur background, fade the edges, detach audio, lip sync, or overlay pack. Do not use for keyframes, motion paths or animated mask reveals (expocut-motion-graphics), LUTs and grades (expocut-color-grading), or speed presets and junction transitions (expocut-social-speed-edit)."
-license: MIT
+description: "Control how layers composite in the ExpoCut mobile editor through its MCP server - 14 blend modes, alpha/luma track mattes, adjustment layers, parent and null rigs, time remapping (freeze frame, reverse, ramps), stacked-alpha overlay packs, working colour space, 15 mask shapes including Video-in-Text, chroma key, Portrait Blur (subject cut out in front of its own blurred background), fit mode, anchor, crop, pan, blur fill, timed fades, fade-on-edge masks, and video-audio unlink, relink and sync nudges. Use when the user says blend mode, multiply, screen, overlay, matte, cut out, green screen, remove background, portrait blur, blur the background behind a person, bokeh, adjustment layer, parent, null, freeze frame, reverse clip, crop, fit, letterbox, blur background, fade the edges, detach audio, lip sync, or overlay pack. Not for keyframes or animated mask reveals (expocut-motion-graphics), LUTs and grades (expocut-color-grading), or speed presets and junction transitions (expocut-social-speed-edit)."
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -25,7 +25,9 @@ Inspect first, checkpoint, then write.
   between two clips: expocut-social-speed-edit.
 - Ducking, stems, volume automation after you unlink audio: expocut-audio-post.
 - Effects, shader looks, light leaks as footage overlays: expocut-fx-looks
-  (add_light_leak_overlay already picks a blend for you).
+  (add_light_leak_overlay already picks a blend for you). apply_subject_blur lives there too:
+  it softens the surround inside one layer. Portrait Blur below is the version that splits the
+  frame into two layers, which is why it is here.
 - Custom mask shapes (mask_register_shape), fade-mask and border presets: expocut-asset-authoring.
 
 ## Before you start
@@ -129,7 +131,8 @@ capture_canvas before keying a blue or uneven screen.
 Background remover: set_layer_background_remover { layerId: "video1", quality: "balanced", featherPx: 2 }
 stores the ML segmentation config (quality fast, balanced, accurate) and shows the badge in
 the editor, but no encoder module implements it yet, so the export is unchanged. Prefer a
-chroma key or a shape mask when the result must render, and tell the user.
+chroma key or a shape mask when the result must render, and tell the user. Portrait Blur
+(below) drives the same segmentation but bakes the cutout to a file, so that one does render.
 
 Spatial fade (fade on edge): set_layer_fade_mask { layerId: "video1", mode: "linear", angle: 270, position: 0.5, softness: 0.4 }.
 Modes: linear (angle 0 fades from the left edge, 90 top, 180 right, 270 bottom), radial
@@ -138,6 +141,71 @@ Modes: linear (angle 0 fades from the left edge, 90 top, 180 right, 270 bottom),
 easeInOut. Defaults: linear, angle 180, position 0.5, softness 0.4, floor 0. This is
 spatial; set_layer_fade { layerId: "video1", fadeInMs: 300, fadeOutMs: 300 } is the timed
 envelope (works on every layer type; 0 clears). clear_layer_fade_mask removes the spatial one.
+
+## Portrait Blur: one layer becomes two
+
+apply_portrait_blur is a compositing operation, not a filter. It cuts the subject out of an
+image or video layer with an on-device segmentation model, bakes that cutout to a file once,
+and then splits the layer into a pair:
+
+- SUBJECT — the layer you passed in. Same id, same geometry, same timing, same keyframes,
+  same filter chain; only its source is swapped for the cutout, so selection and anything
+  already animated on it survive.
+- BACKGROUND — a new layer holding the untouched original source, on a new row directly
+  behind the subject (`trackIndex` + 1), named "<layer> — Blur". It is a copy of the subject
+  with its `shaderFilters` array REPLACED by a single `lensblur` (stacking the subject's own
+  chain on top would double-apply it). Everything else about the layer is copied, so a LUT,
+  colour adjust, preset filter, video-effect chain, border or mask applied BEFORE the call is
+  now on both halves — usually what you want, since the whole frame was graded, but it means
+  a later grade must be applied twice, or to a shared adjustment layer, to match.
+
+Because the cutout is baked once, playback and export need no segmentation afterwards: the
+pair is two ordinary layers and renders the same on iOS and Android. The call returns
+{ subjectLayerId, backgroundLayerId, cutoutUri }, where subjectLayerId is the id you passed
+in. Inserting the row pushes every layer behind the subject back — by one row, or by two
+when the source is a video whose audio is still linked, because the pair moves together — so
+re-read list_layers before any matte, adjustment or reorder work that follows.
+
+The model handshake, which is never silent:
+
+portrait_blur_status { layerId: "image0" }
+→ { applied, modelId, downloaded, sourceKind }. sourceKind is "video" for a video layer and
+"image" for anything else, and the two kinds load different models — a device that has
+already blurred a still can still owe a download for a clip. When downloaded is false:
+
+portrait_blur_download_model { layerId: "image0" }
+apply_portrait_blur { layerId: "image0", blurRadius: 34, blades: 6, highlightBoost: 4 }
+
+Applying without the model throws portraitBlur.MODEL_NOT_DOWNLOADED instead of fetching in
+the background; these are large downloads the user opts into. The other refusals are
+portraitBlur.ALREADY_APPLIED (remove it first — a second call would stack a second background)
+and portraitBlur.NO_SOURCE (the layer has no media). apply_portrait_blur is long-running: the
+bake takes seconds for a still and longer for video, so say so before you fire it.
+
+These three optional numbers are the whole surface; they are written to the background's Lens
+Blur filter.
+
+| param | range | default | what it does |
+| --- | --- | --- | --- |
+| blurRadius | 0..80 | 34 | how far the background blur reaches; larger reads as a longer lens |
+| blades | 0..9, whole numbers | 6 | aperture shape: below 3 is a round disc, 3..9 an iris with that many sides |
+| highlightBoost | 0..12 | 4 | how hard bright pixels bloom into bokeh balls |
+
+The rest of Lens Blur is fixed by the bake (uniform focus, full intensity) because the sharp
+cutout in front already supplies the in-focus area. To reach the others (bladeRotation, aspect,
+highlightThreshold) call set_layer_shader_filter { layerId: "<backgroundLayerId>", effectId:
+"lensblur", fxParams: { ... } } — that re-seeds from Lens Blur's own defaults, so restate
+blurRadius as `radius`, plus blades and highlightBoost, in the same call or they snap back.
+Everything else you can do to a layer works on the background too: grade it, mask it, keyframe it.
+
+remove_portrait_blur { layerId: "<subjectLayerId>" } takes the SUBJECT id, restores its
+original source and deletes the background layer and its clip.
+
+Choosing between the two: apply_subject_blur (expocut-fx-looks) bakes a matte and drives a
+per-pixel blur inside ONE layer — the composition never changes, nothing new appears in the
+timeline, and a soft matte degrades into a soft edge rather than a visibly cut-out subject.
+Portrait Blur is the one to reach for when the background has to be its own editable layer,
+with its own grade, bokeh and moves. Both need the same download handshake.
 
 ## Geometry inside the frame
 
@@ -236,6 +304,15 @@ set_layer_blend_mode { layerId: "video2", mode: "screen" } instead of alpha pack
 - blur fill and stretch pan render in the editor only; verify with capture_export_frame or
   a real export before promising them in the MP4.
 - Background removal is stored but not rendered by the encoders; chroma key is.
+- apply_portrait_blur renumbers rows: every layer behind the subject moves back one row (two
+  for a video with linked audio), so a matte or adjustment you lined up by trackIndex needs
+  re-checking. remove_portrait_blur
+  deletes the background layer and its clip but leaves that row behind as an empty track; undo
+  or undo_to_checkpoint is the tidier reversal.
+- On a video whose audio has been merged into it, the duplicate step that mints the background
+  clones the linked audio onto its own row as well, and only the video half becomes the
+  background. Check list_layers afterwards and remove the stray audio row, or the clip's sound
+  plays twice.
 - describe_canvas ignores blend modes, mattes and adjustments; capture_export_frame and
   export_project need the editor mounted and the phone awake.
 - remove_layer and clear_track_matte, clear_time_remap, clear_layer_fade_mask are undoable

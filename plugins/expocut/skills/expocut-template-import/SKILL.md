@@ -1,10 +1,10 @@
 ---
 name: expocut-template-import
 description: "Bring outside project files into ExpoCut and send ExpoCut templates back out. Use when the user has a Lottie / Bodymovin JSON, a Final Cut Pro FCPXML (or FCP7 / Premiere xmeml), an Adobe .mogrt, an ASC CDL .cdl/.ccc, an Adobe .cube LUT or an ExpoCut .ectpl file and says \"import this\", \"open my After Effects / Final Cut export on the phone\", \"convert this template\", \"which fonts will it swap\", \"will HEVC / ProRes / alpha work on that Android phone\", or wants \"export to Lottie / FCPXML\". Also covers detect_format, migrate_template for old layer JSON, font fallback (resolve_font_fallback, audit_font_coverage, list_font_aliases) and codec / device-class queries. Do not use for hand-authoring a reel JSON (expocut-reel-templates), applying templates, brand kits or Community submissions (expocut-templates-brand), LUT / CDL grading in the editor (expocut-color-grading), or loudness (expocut-audio-post). CapCut .draft, .aep, .prproj, .drp and OTIO are detected but cannot be imported."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -21,8 +21,8 @@ after that is undoable in the app.
 - A file from another tool: this skill. Formats that import today: Lottie / Bodymovin `.json`
   (plain JSON, not the dotLottie zip), FCPXML `.fcpxml`, FCP7 / Premiere legacy XML (`<xmeml>`
   root), Adobe `.mogrt`, ASC CDL `.cdl` / `.ccc`, Adobe `.cube`, ExpoCut `.ectpl` as JSON text.
-- Detected but refused (the reason comes back from `detect_format`): `.otio` (recognised, not
-  importable), `.aep`, `.prproj`, `.drp`, `.fcpbundle`, CapCut `.draft`, VN `.vn`. Tell the user
+- Detected but refused (the reason comes back from `detect_format`): `.otio` (recognised, parser
+  not wired), `.aep`, `.prproj`, `.drp`, `.fcpbundle`, CapCut `.draft`, VN `.vn`. Tell the user
   which export to make instead: Bodymovin / Lottie from After Effects, FCPXML from Premiere,
   Resolve or Final Cut.
 - Hand-authoring or debugging an `.ectpl` reel JSON → expocut-reel-templates.

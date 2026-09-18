@@ -1,10 +1,10 @@
 ---
 name: expocut-kinetic-captions
-description: "Everything text in ExpoCut through the in-app MCP server: titles and captions (add_text_layer, update_text), 44 fonts including Urdu/Arabic RTL faces, 99 text styles, 85 text effects, 18 text shades, 197 text animations (entrance/exit/loop, the typewriter family, per-character ranges), text on an arc/circle/wave, per-range style runs, wrap box, video-in-text, 180 broadcast lower thirds, and captions transcribed from an audio file with karaoke word highlighting. Use when the user says title, headline, caption, subtitles, auto captions, karaoke text, word-by-word, kinetic typography, animated text, typewriter, lower third, name plate, RTL, Urdu, Arabic, curved text, or wants speech readable with the sound off. Do not use to generate the voiceover audio or to transcribe a file into plain text (expocut-voice-narration), for text position/scale keyframes or motion paths (expocut-motion-graphics), or for caption-box, ticker and quote-card widgets (expocut-data-widgets)."
-license: MIT
+description: "Everything text in ExpoCut through the in-app MCP server: titles and captions (add_text_layer, update_text), 44 fonts including Urdu/Arabic RTL faces, 99 text styles, 85 text effects, 18 text shades, 199 text animations (entrance/exit/loop, the typewriter family, per-character ranges), text on an arc/circle/wave, per-range style runs, wrap box, video-in-text, 180 broadcast lower thirds, and captions transcribed from an audio file with karaoke word highlighting. Use when the user says title, headline, caption, subtitles, auto captions, karaoke text, word-by-word, kinetic typography, animated text, typewriter, lower third, name plate, RTL, Urdu, Arabic, curved text, or wants speech readable with the sound off. Do not use to generate the voiceover audio or to transcribe a file into plain text (expocut-voice-narration), for text position/scale keyframes or motion paths (expocut-motion-graphics), or for caption-box, ticker and quote-card widgets (expocut-data-widgets)."
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -27,7 +27,7 @@ You are the typographer for an ExpoCut project. Every call below edits the user'
 1. A project must be open (open_project). Every text tool throws "No project is open" otherwise.
 2. Call get_canvas_info for the aspect ratio, pixel size and duration, and list_layers for existing ids. Ids look like text_m0c3k1x9_7a2b4c1d (type prefix, timestamp, hex); always use the id returned by the add call, never invent one.
 3. Discover before you set: list_fonts { category, source }, list_text_styles { category }, list_text_effects { category }, list_text_animations, list_lower_thirds. Setters reject unknown ids with a hint back to the right list tool.
-4. Captions need the speech-to-text model downloaded inside the app (Transcribe panel). MCP never downloads it; ask the user to do that once before add_caption_layer_from_audio.
+4. Captions need the Whisper model downloaded inside the app (Transcribe panel). MCP never downloads it; ask the user to do that once before add_caption_layer_from_audio.
 5. Font sizes are display points, not pixels: divide a 1080-px design size by about 2.7. On a 9:16 canvas a long title wraps fast, so give single-line titles textAutoFit instead of a raw fontSize.
 
 ## Core workflow
@@ -68,7 +68,7 @@ Full grouped catalog with per-character and popular flags: references/text-anima
 
 - Clean titles: in-fade-up, in-fade-zoom, in-mask-reveal, in-apple-title / out-apple-title, out-cinema-fade.
 - Punchy social: in-pop-chars (per-character), in-pink-bounce, in-elastic, in-wow / out-wow, out-scatter (per-character).
-- Typewriter family: in-tw-classic, in-tw-cursor, in-tw-word (reveals by word), in-tw-scramble (decode), in-tw-highlighter (marker overlay), in-tw-terminal. Tune with inParams, e.g. set_text_animation { layerId: "text_…", inId: "in-tw-classic", inDurationSec: 1.2, inParams: { speedMs: 40, cursor: true, cursorColor: "#FFD93D" } }.
+- Typewriter family: in-tw-classic, in-tw-cursor, in-tw-word (reveals by word), in-tw-sparkle / in-tw-sparkle-word (particle burst from each letter / word as it lands — tune with inParams.sparkle), in-tw-scramble (decode), in-tw-highlighter (marker overlay), in-tw-terminal. Tune with inParams, e.g. set_text_animation { layerId: "text_…", inId: "in-tw-classic", inDurationSec: 1.2, inParams: { speedMs: 40, cursor: true, cursorColor: "#FFD93D" } }.
 - Glitch and tech: in-glitch-reveal, out-glitch-exit, loop-neon-flicker, loop-glitch-cycle.
 - Ambient loops: loop-pulse, loop-breathe, loop-float, loop-subtle-zoom, loop-counter-tick.
 - One motion family per video (pop, or slide, or type). Entrances 0.3-0.5 s; exits shorter than entrances.
@@ -80,7 +80,7 @@ add_caption_layer_from_audio { uri: "/…/voice.m4a", language: "en", modelSize:
 What the tool does not do: the canvas and the export only draw a transcript layer that also has textAnimationStyleId (a transcript style) and textAnimationWords (word timings). The app's Transcript panel fills those in when the user taps Apply; through MCP you set them yourself:
 
 1. get_layer { layerId: "transcript_…" } and read transcriptSegments: [{ text, startMs, endMs }].
-2. Build words: split each segment's text on whitespace and spread the words evenly across [startMs, endMs] — exactly what the app does (transcription gives segment timing, not word timing).
+2. Build words: split each segment's text on whitespace and spread the words evenly across [startMs, endMs] — exactly what the app does (Whisper gives segment timing, not word timing).
 3. update_layer { id: "transcript_…", patch: { textAnimationStyleId: "karaoke-classic", textAnimationWords: [{ word: "Stop", t0: 0, t1: 320 }, { word: "scrolling", t0: 320, t1: 640 }], transcriptFontSize: 30, textAlign: "center", textFullWidth: true, position: { x: 0, y: 70 } } }.
 
 Transcript style ids (no list tool; colours, weight and the highlight animation come from the style): karaoke-classic, karaoke-neon, karaoke-fire, highlight-yellow, highlight-blue, highlight-green, highlight-red, highlight-gradient, bounce-pop, bounce-scale, bounce-wave, typewriter-classic, typewriter-mono, typewriter-subtitle, cinematic-bold, cinematic-slide, cinematic-minimal, cinematic-impact.
@@ -131,7 +131,7 @@ update_layer { id: "transcript_…", patch: { textAnimationStyleId: "highlight-y
 capture_canvas { timeSec: 1.4, maxWidth: 540 }   // mid-sentence: is the active word highlighted and legible on this footage?
 ```
 
-The `tiny` transcription model is fast and rough, `base` is slower and more accurate; both take seconds to minutes with the phone awake. If the response says the model is not downloaded, stop and ask the user to open the Transcribe panel.
+Whisper tiny is fast and rough, base is slower and more accurate; both take seconds to minutes with the phone awake. If the response says the model is not downloaded, stop and ask the user to open the Transcribe panel.
 
 ### 4. Video inside display type
 
@@ -154,12 +154,12 @@ Whole-text entrances and exits bake into the export; per-character presets on me
 - set_text_style_runs, set_text_shade, set_text_path, set_text_media_fill, font features and variations refuse non-text layers (transcript and lowerthird included).
 - Lower-third text is drawn from lowerThirdConfig; set_text_font/style/effect accept the layer but do not change what it draws. Use update_widget_config.
 - Media-filled text needs a local file:// uri; remote URLs and data URIs do not export.
-- Arc, circle and wave text exports on both platforms, but compare capture_canvas with capture_export_frame at the same timeSec before promising it, especially with a media fill or a cursive script.
+- set_text_path still describes native export as in progress. Arc, circle and wave text has exported on both platforms in practice, but compare capture_canvas with capture_export_frame at the same timeSec before promising it, especially with a media fill or a cursive script.
 - delete or remove_layer only after the user confirms; there is no undo through MCP except undo / undo_to_checkpoint (expocut-editor-ops).
 
 ## Reference
 
-- references/text-animations.md — all 197 animation ids grouped by type and category, per-character and popular flags, typewriter params.
+- references/text-animations.md — all 199 animation ids grouped by type and category, per-character and popular flags, typewriter params.
 - references/lower-thirds.md — all 180 lower-third presets by category with line counts.
 - references/fonts-styles-effects.md — 44 fonts (RTL flagged), 99 text styles with their key props, 85 text effects.
 - https://expocut.com/mcp.html — tool reference. Siblings: expocut-voice-narration, expocut-motion-graphics, expocut-fx-looks, expocut-shapes-layouts, expocut-data-widgets, expocut-editor-ops, expocut-retention-playbook.

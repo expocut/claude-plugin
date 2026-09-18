@@ -1,4 +1,4 @@
-# Text animation catalog (list_text_animations, 197 ids)
+# Text animation catalog (list_text_animations, 199 ids)
 
 Generated from the live catalog. Every id below is valid in set_text_animation as inId (type in), outId (type out) or loopId (type loop); set_text_animation only checks that the id exists, not that it belongs to the slot, so keep in-* ids in inId, out-* in outId and loop-* in loopId. "per-char" marks perCharacter animations (they animate glyph by glyph and obey set_text_animation_range). "popular" mirrors the app picker badge. "params" lists the tunable keys the preset bakes in; override any of them through inParams / outParams / loopParams (schema: TextAnimationParams, see the last section).
 
@@ -87,11 +87,13 @@ Generated from the live catalog. Every id below is valid in set_text_animation a
 
 - `in-multiply` — Multiply
 
-### typewriter (57)
+### typewriter (59)
 
 - `in-tw-classic` — Classic Typewriter (per-char, popular) — params: reveal=glyph, speedMs=60
 - `in-tw-cursor` — Cursor Typewriter (per-char, popular) — params: reveal=glyph, cursor=true, cursorColor=currentColor, speedMs=60
 - `in-tw-word` — Word-by-word (per-char) — params: reveal=word, speedMs=180
+- `in-tw-sparkle` — Sparkle Typewriter (per-char, popular) — params: reveal=glyph, speedMs=90, sparkle={count 12, sizePx 2.6, spreadPx 26, lifeMs 650} — gold-dust burst fires from every letter as it lands; tune/recolour with inParams.sparkle ({count, sizePx, spreadPx, lifeMs, colors}); any typewriter preset gains bursts via inParams.sparkle, `sparkle: null` switches them off
+- `in-tw-sparkle-word` — Sparkle Words (per-char) — params: reveal=word, speedMs=240, sparkle={count 18, sizePx 3, spreadPx 34, lifeMs 800} — one burst per word as it appears
 - `in-tw-line` — Line-by-line (per-char) — params: reveal=line, speedMs=480
 - `in-tw-reverse` — Reverse / Backspace (per-char) — params: reveal=reverse, cursor=true, speedMs=60
 - `in-tw-scramble` — Scramble Decode (per-char, popular) — params: reveal=scramble, cyclePool=ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@*!?, cycleColor=#a855f7, speedMs=50

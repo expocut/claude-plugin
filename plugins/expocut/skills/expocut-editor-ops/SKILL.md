@@ -1,10 +1,10 @@
 ---
 name: expocut-editor-ops
-description: "Operate the ExpoCut editor session through the in-app MCP server: projects (create, open, save, rename, duplicate, delete with confirmation), reading state without an image (get_canvas_info, describe_canvas, list_layers, get_layer, get_layer_schema), layer edits (update_layer, remove_layer, reorder_layer, visibility), playback, selection, tracks, session checkpoints with undo, redo and undo_to_checkpoint before automated passes, previews (capture_canvas, preview_filmstrip, capture_export_frame), export settings, export_project and get_render_status, verify_export_parity and the resize review queue. Use when the user says open, rename, duplicate or delete the project, what does the frame look like, screenshot it, undo that, go back, checkpoint, save, hide or mute the track, export settings, 1080p, 4K, 60 fps, is the export done, which fields can I patch, or seconds versus milliseconds. Not for adding media or text (expocut-video-creating) or keyframes (expocut-motion-graphics)."
-license: MIT
+description: "Operate the ExpoCut editor session through the in-app MCP server: projects (create, open, save, rename, duplicate, delete with confirmation), reading state without an image (get_canvas_info, describe_canvas, list_layers, get_layer, get_layer_schema, get_authoring_capabilities), layer edits (update_layer, remove_layer, reorder_layer, visibility), playback, selection, session checkpoints with undo, redo and undo_to_checkpoint, previews (capture_canvas, preview_filmstrip, capture_export_frame), export settings, export_project, get_render_status, verify_export_parity and the resize review queue. Use when the user says open, rename, duplicate or delete the project, what does the frame look like, screenshot it, undo that, checkpoint, hide or mute the track, export settings, 1080p, 4K, 60 fps, is the export done, am I allowed to register a custom LUT or effect, which fields can I patch, or seconds versus milliseconds. Not for adding media or text (expocut-video-creating) or keyframes (expocut-motion-graphics)."
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -22,7 +22,9 @@ Own: project lifecycle, inspection, generic `update_layer` patches, playback, se
 checkpoints, previews, export settings, rendering, parity checks, resize review. Hand off adding
 media, stock and titles to expocut-video-creating; keyframes and `set_camera` to
 expocut-motion-graphics; fit/anchor/crop/blend to expocut-compositing; effect schemas
-(`get_effect_schema`) to expocut-fx-looks.
+(`get_effect_schema`) to expocut-fx-looks; registering custom effects, LUTs, borders and mask
+shapes to expocut-asset-authoring — but run `get_authoring_capabilities` yourself first, it is
+read-only and tells you whether that hand-off can succeed at all.
 
 ## Before you start
 
@@ -30,6 +32,12 @@ expocut-motion-graphics; fit/anchor/crop/blend to expocut-compositing; effect sc
   nothing is open; otherwise it returns layerCount, trackCount, isDirty and exportSettings.
 - Almost every other tool throws `No project is open. Call open_project first.` until a project
   is loaded. `open_project { id }` loads it from disk and navigates the phone to the editor.
+- `get_authoring_capabilities {}` is safe to call cold: no arguments, no open project, no
+  quota, and it is deliberately not gated by the setting it reports on. (The project guard is
+  per tool, not global — `ping`, `echo` and the `list_*` catalogs need no open project either.)
+  Call it once before planning any custom effect, LUT, border or mask registration — a locked
+  surface means the user must raise a setting, not that the app lacks the feature. Recipe 5
+  reads the reply.
 - Mount matters. These reach into the live editor screen and fail (after a 2 to 6 s grace
   period) if it is not on screen: `capture_canvas`, `preview_filmstrip`, `render_still`,
   `capture_export_frame`, `export_project`, `verify_export_parity`. Everything else reads or
@@ -80,6 +88,12 @@ Session, playback, selection
 | seek { timeSec } / seek_seconds { timeSec } | move the playhead (seconds) | identical; capture tools take their own timeSec |
 | ping {} / echo { message } | is the server alive; round-trip a payload | the two builtins; use them to confirm the phone is reachable before a long pass, they need no open project |
 | select_layer { layerId } / get_selection | in-app selection | layerId may be null to clear; highlighted in capture_canvas |
+
+Capability discovery
+
+| tool | what for | notes |
+| --- | --- | --- |
+| get_authoring_capabilities | may I register custom assets right now | no arguments, no open project, no quota; returns tier, featureEnabled, settingsPath, tierOrder and one row per authoring surface with allowed, requiredTier and the tool names it gates; see recipe 5 |
 
 Tracks (one track per MCP-added layer; ids look like `track-video-…`)
 
@@ -133,7 +147,7 @@ Checkpoints (session-scoped, in memory, ring of 50, cleared when the app restart
 
 ## Seconds versus milliseconds
 
-Verified against the app's layer and introspection tool implementations:
+Verified in `layers.ts` and `introspection.ts`:
 
 - `update_layer` multiplies `patch.startTime` and `patch.duration` by 1000 before merging, so
   they are seconds, like every `add_*` call. Every other key in the patch is written exactly as
@@ -208,6 +222,40 @@ get_render_status                                // from another connection: isE
 For a proof frame instead of a full render: `capture_export_frame { timeSec: 3 }`. For a poster
 file: `render_still { timeSec: 3, format: "png" }`.
 
+### 5. Can I author that asset, or is it a setting?
+
+```
+get_authoring_capabilities                       // no args, no project, no quota
+```
+
+One call answers every "am I allowed to register this?" question, so you never probe a family
+with a `*_list_custom` call or, worse, attempt a registration just to read the denial:
+
+```
+{ ok: true,
+  tier: "safe",                                    // off | safe | standard | full
+  featureEnabled: true,                            // build-level master switch
+  settingsPath: 'Settings → AI Integration → "AI may author assets"',
+  tierOrder: ["off", "safe", "standard", "full"],  // weakest → strongest
+  surfaces: [ { surface: "fx-declarative", allowed: true,  requiredTier: "safe",
+                tools: ["fx_register_spec", "fx_compose_from_template", ...] },
+              { surface: "fx-shader",      allowed: false, requiredTier: "full", tools: [...] },
+              ... ] }
+```
+
+`surfaces` carries one row per authoring surface, in this order: `fx-declarative`, `fx-shader`,
+`lut-cube`, `lut-grade`, `border`, `mask-simple`, `mask-path`. Read it like this:
+
+- `allowed: false` with a `requiredTier` means the feature ships and the user's setting is too
+  low. Quote `settingsPath` and name that tier; it is a phone setting no MCP tool can change.
+- `requiredTier` is the cheapest tier that unlocks the surface, not the strongest — ask for
+  `safe` when `safe` is enough. `null` would mean no tier grants it, which is a bug, not a setting.
+- `featureEnabled: false` means authoring is compiled out of that build and no tier helps. Do not
+  send the user to Settings; apply the same values inline (`set_layer_border`, `set_layer_cdl`,
+  `set_layer_mask`) instead.
+
+Then hand the registration itself to expocut-asset-authoring.
+
 ## Pitfalls
 
 - `update_layer` and `remove_layer` take `id`; almost every other setter takes `layerId`.
@@ -243,4 +291,5 @@ file: `render_still { timeSec: 3, format: "png" }`.
   ranges; read it when composing an `update_layer` patch.
 - Full tool list and conventions: https://expocut.com/mcp.html
 - Siblings: expocut-video-creating (adding media and text), expocut-motion-graphics (keyframes,
-  camera), expocut-compositing (fit, anchor, crop, blend), expocut-fx-looks (effect schemas).
+  camera), expocut-compositing (fit, anchor, crop, blend), expocut-fx-looks (effect schemas),
+  expocut-asset-authoring (registering custom fx, LUTs, borders and mask shapes).

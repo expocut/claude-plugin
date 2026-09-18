@@ -1,10 +1,10 @@
 ---
 name: expocut-voice-narration
-description: "Writes and places AI voiceover and transcribes speech in ExpoCut through its in-app MCP server - scripts written for the ear, the 14 on-device voices with quality grades, multi-voice scripts with pause markers, tts_validate_script pre-flight, tts_add_audio_layer placement with speed, volume and fades, on-device transcription of any audio or video file by uri, one-call transcript (caption) layers from that uri, ducking music under the narration, and loudness targets. Use when the user says voiceover, VO, narration, narrate this, text to speech, TTS, AI voice, read this script, British or American voice, transcribe, transcript, subtitles from the audio, captions from my recording, or wants a script written for a video. Do not use for caption styling and word-by-word animation (expocut-kinetic-captions), music and stem mixing beyond ducking (expocut-audio-post), or adding a voice file the user already has (expocut-video-creating)."
-license: MIT
+description: "Writes and places AI voiceover and transcribes speech in ExpoCut through its in-app MCP server - scripts written for the ear, the 14 on-device Kokoro voices with quality grades, multi-voice scripts with pause markers, tts_validate_script pre-flight, tts_add_audio_layer placement with speed, volume and fades, on-device Whisper transcription of any audio or video file by uri, one-call transcript (caption) layers from that uri, ducking music under the narration, and loudness targets. Use when the user says voiceover, VO, narration, narrate this, text to speech, TTS, AI voice, read this script, British or American voice, transcribe, transcript, subtitles from the audio, captions from my recording, or wants a script written for a video. Do not use for caption styling and word-by-word animation (expocut-kinetic-captions), music and stem mixing beyond ducking (expocut-audio-post), or adding a voice file the user already has (expocut-video-creating)."
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -31,12 +31,12 @@ user should not hear a first draft.
    video's `startTime`/`duration` (seconds) so the narration fits.
 2. `tts_list_voices {}` - 14 voices with `id`, `name`, `gender`, `accent`, `grade`.
    Ids encode accent and gender: `af_` American female, `am_` American male,
-   `bf_` British female, `bm_` British male. Grades A to C are the voice model's own
+   `bf_` British female, `bm_` British male. Grades A to C are Kokoro's own
    quality ratings; af_heart (A) and af_bella (A-) are the safe defaults.
    `references/voices.md` has descriptions and best uses.
-3. Models. The voice model must be downloaded in the app's TTS modal; without it
+3. Models. Kokoro must be downloaded in the app's TTS modal; without it
    `tts_add_audio_layer` silently falls back to the system voice, which ignores
-   `[VOICE:]` switches and voice ids. The `tiny` or `base` transcription model must be downloaded
+   `[VOICE:]` switches and voice ids. Whisper `tiny` or `base` must be downloaded
    in the app's Transcribe modal; `transcribe_audio` refuses to start a download
    and errors with "not downloaded" - ask the user to open that panel.
 4. Getting a `uri`. The transcription tools take a file uri, never a layer id.
@@ -50,7 +50,7 @@ user should not hear a first draft.
 
 ## Writing for the ear
 
-- The voices read about 150 words per minute at speed 1.0: 30 s of Reel is 70-80
+- Kokoro reads about 150 words per minute at speed 1.0: 30 s of Reel is 70-80
   words, 60 s is 140-160. Trim before generating rather than speeding up.
 - Short sentences, one idea each, the interesting word first. No lists longer
   than three items. Spell tricky brands phonetically ("chat gee pee tee").
@@ -160,9 +160,9 @@ set_layer_audio_offset { layerId: "audio2", offsetMs: -120 }   // nudge earlier 
 - Defaults disagree: `tts_add_audio_layer` uses af_bella when `voiceId` is
   omitted, `tts_validate_script` assumes am_michael. Always pass both.
 - Voice ids in `[VOICE: …]` markers must be `tts_list_voices` ids in lowercase; an
-  unknown id falls through to the call's `voiceId` (or the engine's default speaker) without
+  unknown id falls through to the call's `voiceId` (or Kokoro speaker 10) without
   an error - `tts_validate_script` shows what each segment resolved to.
-- `pitch` only affects the system-voice fallback; the on-device voices ignore it. `speed` is
+- `pitch` only affects the system-voice fallback; Kokoro ignores it. `speed` is
   the lever, and going past 1.2 costs intelligibility.
 - `duration` on `tts_add_audio_layer` overrides the layer length, not the audio:
   shorter cuts words, longer leaves silence. Leave it out.
@@ -170,7 +170,7 @@ set_layer_audio_offset { layerId: "audio2", offsetMs: -120 }   // nudge earlier 
   keeps pointing at it. Do not clear the app cache before exporting.
 - `transcribe_audio` returns segments, not words (`tokenTimestamps` is off), so
   word-by-word highlights are the caption skill's job from segment timing.
-- `transcribe_audio` errors on a missing model rather than downloading; an empty result on
+- Whisper errors on a missing model rather than downloading; an empty result on
   `add_caption_layer_from_audio` throws "no segments" (silent or unrecognised
   audio - separate the vocal stem or pass `language`).
 - There is no `stylePreset`, `layerId` or `trackId` on the transcription tools;

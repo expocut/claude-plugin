@@ -1,10 +1,10 @@
 ---
 name: expocut-reel-templates
 description: "Author, fix or review the .ectpl reel / template JSON that ExpoCut loads through import_template_json (schemaVersion 1.1, template and snapshot modes): the canvas and aspect model, percent placement, font sizing, inline SVG vector graphics with unique gradient ids, slots and slotRef, text animation ids, microsecond keyframes, junction transitions, trackIndex z-order, and the export-safe rules that make the MP4 match the canvas on any device. Use for \"write a reel template\", \"turn this design / CapCut / Figma / poster into an ExpoCut template JSON\", \"why is the slot empty, the logo missing, the gradient gone or the text off-centre in the export\", \"validate / lint my reel JSON\". Do not use for applying bundled templates, brand profiles, palette theming or Community submissions (expocut-templates-brand), for importing Lottie / FCPXML / .mogrt files (expocut-template-import), or for animating layers on a live project (expocut-motion-graphics)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance for hand-authoring the JSON; becomes hands-on when paired with the ExpoCut in-app MCP server (build in the editor, then export the reel).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -144,7 +144,7 @@ Layer types & their signature fields:
 
 ## 7. Animation & timing
 
-- **Text:** `textAnimInId` / `textAnimOutId` / `textAnimLoopId` + matching `*Duration` (ms). Ids come from `list_text_animations` (197 presets) and must match exactly. Vocabulary you'll reach for: in — `in-fade-up`, `in-mask-reveal`, `in-fade-zoom`, `in-slide-left-fade`, `in-apple-title`, `in-wow`, `in-tw-classic` (typewriter); out — `out-fade`, `out-fade-up`, `out-cinema-fade`; loop — `loop-float`, `loop-breathe`. (These carry most reels.) The blur-named presets (`in-blur-slide`, `out-fade-blur`, `out-blur-slide`, `in-tw-blur`) still work but do NOT blur — that keyframe channel rendered on no surface and was removed in 5.7.0, so reach for them only for their motion.
+- **Text:** `textAnimInId` / `textAnimOutId` / `textAnimLoopId` + matching `*Duration` (ms). Ids come from `list_text_animations` (199 presets) and must match exactly. Vocabulary you'll reach for: in — `in-fade-up`, `in-mask-reveal`, `in-fade-zoom`, `in-slide-left-fade`, `in-apple-title`, `in-wow`, `in-tw-classic` (typewriter); out — `out-fade`, `out-fade-up`, `out-cinema-fade`; loop — `loop-float`, `loop-breathe`. (These carry most reels.) The blur-named presets (`in-blur-slide`, `out-fade-blur`, `out-blur-slide`, `in-tw-blur`) still work but do NOT blur — that keyframe channel rendered on no surface and was removed in 5.7.0, so reach for them only for their motion.
 - **Video transitions:** dotted namespaces on `transitionIn` — `dissolve.cross`, `cut.flash`, `light.warm-sunset`, `light.cool-window`, `slide.zoom`, `dissolve.dip-to-black` — plus `transitionInDuration`.
 - **Keyframes** (`keyframes.tracks[{property, keyframes:[{t, v, interp}]}]`): animate `transform.scale`, `fx.blur`, `transform.x/y`, `opacity`, etc. **`t` is in MICROSECONDS** — `12000000` = 12,000 ms = 12 s. A subtle `scale 1.12 → 1.0` over 0.7 s is the classic Ken-Burns push; blur `20 → 0` is a motion-blur reveal. `interp`: `{type:"preset",name:"easeOut"}` or `{type:"linear"}`.
 
@@ -265,7 +265,7 @@ made in the editor afterwards (`update_layer` patches take **seconds**) can be c
 | `reference/validate-reel.mjs` | Offline linter — `node validate-reel.mjs my-reel.json`. Catches unit mix-ups, duplicate/empty tracks, orphan slotRefs, `file://` paths, gradient-id collisions, illegal field/type combos and text hidden behind full-canvas media, in <1s instead of a 60s export round-trip. |
 | `reference/schema.md` | Compact field reference. |
 | `reference/starter-4x5.json` | Minimal valid skeleton to copy. |
-| `reference/examples/` | One complete worked template, `droplet-lens-montage-v1.json` (junction transitions). |
+| `reference/examples/` | Two complete worked templates + their generator. |
 
 ## Style of advice
 Be concrete and measured. When a template looks wrong, name the rule it broke (gradient-id collision, local-file slot, fullWidth vs free-box text, microsecond keyframes, trackIndex z-order). Verify by rendering and looking, not by assuming.

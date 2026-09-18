@@ -1,10 +1,10 @@
 ---
 name: expocut-audio-post
 description: "Mixes and post-produces audio in ExpoCut through its in-app MCP server - on-device stem separation (vocals, drums, bass, other), karaoke and vocal isolation, per-stem mixes, auto-ducking music under a vocal stem, beat times from the drum stem, audio-reactive zoom, flash and wobble, AI dialogue denoise, silence removal, loudness targets and gain maths, 37 per-layer audio effects, 25 audio in/out transitions, volume automation, fades, sync offsets, and royalty-free music from Freesound. Use when the user mentions stems, remove vocals, instrumental, karaoke, isolate the voice, duck the music, mix voice and music, beat sync, cut on the beat, pulse with the bass, clean up audio, denoise, hiss, hum, silence, LUFS, loudness, too quiet, too loud, compressor, EQ, reverb, fade the music, crossfade, lip-sync offset, or background music. Do not use for generating a voiceover or transcribing speech (expocut-voice-narration) or for caption styling (expocut-kinetic-captions)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---
@@ -31,12 +31,13 @@ the one tool that writes a new file - and it keeps the original layer's media.
    their `startTime`/`duration` (seconds) and which layer carries the voice.
    `list_tracks {}` gives track ids for `set_track_volume` / `set_track_mute`.
 2. Know what needs a model. `separate_audio` tier `fast` runs a model-free DSP
-   path on the device (no download); tier `studio` downloads the studio separation model from the
+   path on the device (no download); tier `studio` downloads HT-Demucs from the
    CDN on first use (hundreds of MB, needs network and the phone awake) and falls
    back to fast on low-memory devices (`fellBack: true` in the result).
-   `clean_audio` needs a build with the native denoise engine and downloads its
-   model on first use. If the stems come back silent, the build has no native
-   separation module; judge results on a real device, not the simulator.
+   `clean_audio` needs a build with the native denoise engine and downloads the
+   DeepFilterNet3 model on first use. A build without the native separation
+   module returns silent placeholder stems, and in the iOS simulator the fast
+   tier has been seen failing while studio works - judge results on a device.
 3. Stem layers are deterministic: `<sourceLayerId>__stem_vocals`, `__stem_drums`,
    `__stem_bass`, `__stem_other`. They inherit the source's start, in-point and
    speed and sit on rows behind it. `separate_audio` also returns each stem's

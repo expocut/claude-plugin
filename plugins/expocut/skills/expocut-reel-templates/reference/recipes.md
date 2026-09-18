@@ -17,8 +17,8 @@ Run `node validate-reel.mjs your-reel.json` before every publish.
 | `keyframes.tracks[].keyframes[].t` | **microseconds**, absolute on the project timeline |
 
 > Passing `9000` to an MCP `add_*_layer` meaning "9000 ms" makes a **9000-second**
-> layer. The export then tries to render 2.5 hours and appears to hang, and there
-> is **no cancel-export tool**.
+> layer. The export then tries to render 2.5 hours, appears to hang, and there is
+> **no cancel-export tool** — the queue stays wedged.
 
 ---
 
@@ -353,25 +353,25 @@ More slots = more of the user's own content = a better reel. 12 photo slots over
 # 1. offline lint first — catches ~everything in <1s
 node validate-reel.mjs my-reel.json
 
-# 2. import + export on a device (MCP)
+# 2. import + export on the simulator (MCP)
 #    import_template_json  → export_project  → returns {uri}
 #    For a media-fill SHAPE, point fillMediaUri at a LOCAL file:// for this test —
-#    a raw export does not download a shape's remote fill (the app does,
-#    on the real "use Reel" path).
+#    a raw export does not download a shape's remote fill (the app's
+#    prefetchTemplateAssets does, on the real "use Reel" path).
 
 # 3. pull frames and eyeball the export (it is the ground truth)
 ffmpeg -y -i export.mp4 -vf "fps=0.5,scale=150:267,tile=6x2" sheet.jpg
 ```
 
-`export_project` is **synchronous** (~40–60s). Do **not** wrap it in a retry loop: a
-second call while one is running is refused with "another export is already in progress".
-If the HTTP call times out, the export usually **still completes**; check
-`get_render_status` instead of calling `export_project` again.
+`export_project` is **synchronous** (~40–60s). Do **not** wrap it in a retry loop —
+retries double-fire and create phantom "another export is already in progress" locks.
+A 504 on the HTTP call usually means the export **succeeded anyway**; look for the
+newest `…/Library/Caches/VideoExport_*.mp4`.
 
-`verify_export_parity` diffs canvas (512×910) against export (480×854) at their
-native sizes **without resizing**, so it reports `meanAbsDiff: -1` /
-`MAJOR_DIFFERENCES` even on frames that are pixel-identical. When the sizes
-differ, compare `capture_canvas` and `capture_export_frame` yourself.
+`verify_export_parity` is currently unusable: it diffs canvas (512×910) against
+export (480×854) **without resizing**, so it reports `meanAbsDiff: -1` /
+`MAJOR_DIFFERENCES` on frames that are pixel-identical. Diff manually until it
+normalizes dimensions.
 
 ---
 

@@ -1,6 +1,6 @@
 # Tool signatures used by expocut-kinetic-captions
 
-<!-- generated from the app's live MCP registry by ExpoCut's skill-parity test; do not edit by hand -->
+<!-- generated from the live MCP registry by apps/mobile/src/mcp/__tests__/skillsParity.test.ts; do not edit by hand -->
 
 Exact names, parameters and enums of every tool this skill mentions. `*` marks a required parameter.
 Time arguments named startTime / duration / *Sec are seconds; keyframe timeMs is milliseconds.
@@ -21,7 +21,7 @@ Transcribe an audio file and create a transcript layer with the segments populat
 
 ## add_lower_third_layer
 
-Add a lower-third title card layer (broadcast-style name + role overlay). Use list_lower_thirds for preset ids. Pass lines[] to override the default placeholder text.
+Add a lower-third title card layer (broadcast-style name + role overlay). Use list_lower_thirds for preset ids. Pass lines[] to override the default placeholder text. PLACEMENT: x/y is the TOP-LEFT corner in canvas % (default 50/75, i.e. the card starts at the horizontal centre, in the lower quarter); the card is CONTENT-SIZED (describe_canvas reports the default square as approx) and most presets animate in and out within the layer duration.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ Add a lower-third title card layer (broadcast-style name + role overlay). Use li
 
 ## add_text_layer
 
-Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text auto-fits the canvas regardless of aspect ratio (9:16, 16:9, 1:1) — perfect for title cards. Use verticalAnchor="top|center|bottom" instead of computing y. startTime/duration are seconds. Use transitionIn/Out (e.g. "fade", "scale") for entrance/exit animations.
+Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text auto-fits the canvas regardless of aspect ratio (9:16, 16:9, 1:1) — perfect for title cards. x/y are the TOP-LEFT corner of the text block in canvas % (fullWidth pins x=0). Use verticalAnchor="top|center|bottom" instead of computing y: it places the block top at 12 %, the glyph centre at 50 %, or the block bottom at 88 % on any aspect. startTime/duration are seconds. Use transitionIn/Out (e.g. "fade", "scale") for entrance/exit animations.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -71,7 +71,7 @@ Add a text layer. Defaults to fullWidth=true + textAlign="center" so the text au
 
 ## capture_canvas
 
-Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024).
+Capture the editor canvas to a PNG (or JPG) at a given frame and return it as an MCP image block, so you can SEE the project state — layer placement, colors, overlap, final composition. The leading text block is SELF-DESCRIBING for debugging: it reports the captured time, project canvas size (aspectRatio + resolution), total length, layer/track counts, and — most useful — the list of layers actually VISIBLE at that frame (sorted top-most first, each with its computed bounding box in canvas %), so an empty/wrong frame is immediately explainable. DEBUG VIEWS: xray=true dims the composition and draws labeled layer bounding boxes on top; outlinesOnly=true hides content entirely (borders only); grid=true overlays a 10%-step coordinate grid with % labels to pin-point positions — all composable with timeSec. Requires the editor mounted on the active project (Library → tap the project). timeSec scrubs the playhead first; maxWidth defaults to 512 (cap 1024). ANDROID CAVEAT: this capture is a software view-snapshot, which does NOT include camera-based 3D — a layer with rotationX/rotationY renders FLAT here even though the real screen and the export both show the tilt. When that applies to the frame you asked for, the result carries a `warnings` entry naming the affected layers; use capture_export_frame to see the tilt. Do not read a flat capture as a tilt bug on Android.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -118,7 +118,7 @@ Remove all per-range style runs from a text layer.
 
 ## describe_canvas
 
-Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden or scheduled outside this frame. This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
+Describe — as structured TEXT, no image — exactly what is composited at a given frame. Returns, for the requested time (default = current playhead): every VISIBLE layer sorted top-most first, each with its resolved bounding box in canvas % (x/y/w/h, top-left anchored; approx=true when the size is estimated), paint order (lower trackIndex paints on top), opacity and type; plus how many layers are hidden, scheduled outside this frame, or non-visual (audio never paints and is never listed). This is the cheap, mount-free companion to capture_canvas — use it to reason about layout, overlap and z-order without spending an image. timeSec scrubs the described frame only.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -126,7 +126,7 @@ Describe — as structured TEXT, no image — exactly what is composited at a gi
 
 ## get_canvas_info
 
-Return the canvas/preview context in one cheap call (no image, editor need not be mounted): aspectRatio + numeric aspect, pixel width/height, fps, format, quality, total duration (ms + sec), estimated frame count, layer/track counts, current playhead, isPlaying and the selected layer id. Use this to understand the frame size and timeline length before placing layers or capturing.
+Return the canvas/preview context in one cheap call (no image, editor need not be mounted): aspectRatio + numeric aspect, pixel width/height (from the stored resolution, else the 1080p preset — resolutionAssumed=true), the editor canvas size in points, layerBaseWidthPct / layerBaseHeightPct (how big an unsized layer lands, as % of the canvas), fps, format, quality, total duration (ms + sec), estimated frame count, layer/track counts, current playhead, isPlaying and the selected layer id. Use this to understand the frame size, the default layer size and the timeline length before placing layers or capturing.
 
 No parameters.
 
@@ -319,7 +319,7 @@ Fill a text layer's glyphs with a video or image ("Video in Text"). uri is a loc
 
 ## set_text_path
 
-Lay text glyphs along a path. `path` is a CurvedTextPath spec. Verify the export with capture_export_frame.
+Lay text glyphs along a path. `path` is a CurvedTextPath spec (see src/text/CurvedTextLayout). Native encoder export support is in-progress.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -385,7 +385,7 @@ Enable a character-by-character typewriter reveal on a text layer. charDelayMs s
 
 ## transcribe_audio
 
-Transcribe an audio file using the on-device speech-to-text model. Returns time-stamped text segments. Requires the model to be downloaded already (open the app's transcribe panel to download). Default model: "tiny" — faster but less accurate; pass "base" for better accuracy at the cost of speed.
+Transcribe an audio file using on-device Whisper. Returns time-stamped text segments. Requires the Whisper model to be downloaded already (open the app's transcribe panel to download). Default model: "tiny" — faster but less accurate; pass "base" for better accuracy at the cost of speed.
 
 | param | type | notes |
 | --- | --- | --- |
@@ -395,7 +395,7 @@ Transcribe an audio file using the on-device speech-to-text model. Returns time-
 
 ## tts_add_audio_layer
 
-Generate speech with the on-device TTS engine (falls back to the system voice if the voice model is not downloaded) and add the resulting WAV as an audio layer. Use tts_list_voices to find voiceId. Layer duration defaults to the generated audio length.
+Generate speech with the on-device TTS engine (Kokoro; falls back to AVSpeech if Kokoro not downloaded) and add the resulting WAV as an audio layer. Use tts_list_voices to find voiceId. Layer duration defaults to the generated audio length.
 
 Script markers — embed in `text` for dramatic pacing:
   ...p   paragraph pause (≈850 ms silence)
@@ -430,7 +430,7 @@ Jump directly to a specific checkpoint by id.
 
 ## update_layer
 
-Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer.
+Merge a partial patch into the layer with the given id. Use this for tweaks like changing position, opacity, scale, fontSize, transitionIn etc. without rebuilding the layer. rotationX / rotationY tilt the layer out of plane in degrees (0 = flat, clamped to ±75) — that is the card-in-3D-space move; plain `rotation` remains the in-plane spin. Supported on every visual layer type that can rotate at all — image, video, base video, text, shape, shape-widget, collage and Lottie — on canvas and at export. Android adds transcript and lower-third; on iOS those two carry no layer rotation in the encoder at all, so they stay flat there.
 
 | param | type | notes |
 | --- | --- | --- |

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 /**
  * validate-reel.mjs — offline linter for ExpoCut reel/template JSON.
- * Copyright (c) 2026 ExpoCut. Released under the MIT License (see LICENSE).
  *
  * Catches, in <1s, the mistakes that otherwise cost a 60s import+export
- * round-trip on a device (or ship broken to the CDN):
+ * round-trip on the simulator (or ship broken to the CDN):
  *   unit mix-ups (seconds vs ms vs µs), duplicate trackIndex, empty tracks[],
  *   orphan slotRefs, file:// paths, duplicate SVG gradient ids, illegal
  *   field/layer-type combos (the ones that export BLANK), z-order mistakes
@@ -191,7 +190,7 @@ function validate(doc, label) {
       for (const k of t.keyframes ?? []) {
         if (!Number.isFinite(k.t)) { err(`layer ${l.id}: keyframe t not a number`); continue; }
         // t is MICROSECONDS, absolute. A layer 1s+ in whose keyframes are all tiny
-        // is the classic ms-instead-of-µs mistake (1000x too fast).
+        // is the classic ms-instead-of-µs bug (1000x too fast).
         if (k.t > 0 && k.t < 100000 && (l.duration ?? 0) > 1000)
           warn(`layer ${l.id}: keyframe t=${k.t} looks like MILLISECONDS — t must be MICROSECONDS (12s = 12000000)`);
       }
@@ -220,7 +219,7 @@ function validate(doc, label) {
       if (!l.stretchToCanvas && typeof l.scale === 'number' && l.scale !== 1) check('scale', true);
       if (kind === 'generativeBg')
         warn(`layer ${l.id}: generativeBg "${l.effectId}" — canvas and export DIVERGE. Prefer a real-footage light-leak overlay video (blendMode:'screen').`);
-      // positioned raster sized by scale => the classic grid-sizing mistake
+      // positioned raster sized by scale => the classic grid-parity bug
       if (kind === 'image.raster' && !l.stretchToCanvas && l.canvasRelativeWidth == null && (l.scale ?? 1) !== 1)
         err(`layer ${l.id}: positioned IMAGE sized by scale — the export sizes it from baseWidth*scale and will NOT match. Use a media-fill SHAPE with canvasRelativeWidth/Height instead.`);
     }

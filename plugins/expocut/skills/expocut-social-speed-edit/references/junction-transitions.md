@@ -1,7 +1,7 @@
 # Junction transition catalog
 
 Read this when you need an `effectId` for `set_junction_transition`. These ids
-come from the app's built-in transition catalog, not
+come from the app's transition catalog (`src/effects/transitionCatalog.ts`), not
 from `list_transitions`, and there is no `list_*` tool that returns them. A junction
 is the cut between two clips that touch on the same timeline row; find them with
 `list_junctions {}` and address one by `fromLayerId` + `toLayerId`.

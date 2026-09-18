@@ -52,11 +52,20 @@ how the bridge works and troubleshooting: [plugins/expocut/README.md](plugins/ex
 - "Cut this 4-minute talk down to a 45-second short with a hook in the first 2 seconds."
 - "Duck the music under the voice and normalise for TikTok."
 
+## Claude Desktop app
+
+The same bridge ships as a Desktop extension. Build it with `npm run build:desktop`
+and install `desktop-extension/dist/expocut-<version>.mcpb` from Settings →
+Extensions, or download the bundle from the releases page. Paste the Server URL
+and Bearer Token into the extension settings. Details:
+[desktop-extension/README.md](desktop-extension/README.md).
+
 Layout:
 
 ```
 .claude-plugin/marketplace.json   the marketplace (lists ./plugins/expocut)
 plugins/expocut/                  the plugin: .mcp.json, bridge/, commands/, skills/
+desktop-extension/                manifest + build script for the Claude Desktop extension
 ```
 
 Develop and test:

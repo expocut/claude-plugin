@@ -1,10 +1,10 @@
 ---
 name: expocut-color-grading
 description: "Grade footage in ExpoCut through its MCP server with the levers that exist - hue/saturation/brightness (set_layer_color_adjust), ASC CDL slope/offset/power (set_layer_cdl, the real contrast, lift and gamma control), 3D LUTs (set_layer_lut with the six built-ins or any custom .cube), 134 preset filters (set_layer_filter), one-call look passes over a time range (apply_global_color_grade), local Light/LUT zones (add_light_region), the CDL to .cube to lut_register_custom round trip, chroma-key basics and export quality. Use for \"colour grade\", \"color correct\", \"make it cinematic\", \"teal and orange\", \"warm it up\", \"cool it down\", \"more contrast\", \"lift the shadows\", \"black and white\", \"match these clips\", \"apply my LUT / .cube\", \"fix this dark clip\", \"green screen\". Do not use for halation, grain, CRT, cartoon or glow (expocut-fx-looks), colour keyframes (expocut-motion-graphics), blend modes and mattes (expocut-compositing), or custom-asset quotas and ids (expocut-asset-authoring)."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

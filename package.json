@@ -7,6 +7,7 @@
   "description": "Claude Code marketplace + plugin that connects Claude Code to the ExpoCut in-app MCP server over the local network.",
   "scripts": {
     "test": "node --test plugins/expocut/bridge/test/*.test.mjs",
+    "build:desktop": "node desktop-extension/build.mjs",
     "validate": "claude plugin validate . && claude plugin validate plugins/expocut"
   },
   "engines": {

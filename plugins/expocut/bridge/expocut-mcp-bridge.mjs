@@ -47,6 +47,12 @@ export const PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 export const CONFIG_FILE = 'claude-mcp.json';
 export const TOOLS_CACHE_FILE = 'claude-mcp-tools.json';
 export const SETTINGS_PATH = 'ExpoCut → Settings → AI Agent (MCP Server)';
+// EXPOCUT_HOST=desktop is set by the Claude Desktop extension bundle; pairing
+// then happens in the extension's settings instead of a slash command.
+export const HOST = process.env.EXPOCUT_HOST === 'desktop' ? 'desktop' : 'claude-code';
+export const PAIR_HINT = HOST === 'desktop'
+  ? 'enter the Server URL and Bearer Token in Claude Desktop → Settings → Extensions → ExpoCut → Configure'
+  : 'run /expocut:connect <url> <token>';
 
 const PROBE_TIMEOUT_MS = 3000;
 const LIST_TIMEOUT_MS = 15000;
@@ -61,7 +67,7 @@ export const CONNECTION_TOOL = {
     'Check the connection between Claude Code and the ExpoCut app on the user\'s phone. ' +
     'Returns the saved address, whether ExpoCut is reachable right now, and the setup steps ' +
     'to relay to the user when it is not (open ' + SETTINGS_PATH + ', same Wi-Fi, then ' +
-    '/expocut:connect <url> <token>). Call this when another ExpoCut tool reports that ' +
+    PAIR_HINT + '). Call this when another ExpoCut tool reports that ' +
     'ExpoCut is unreachable or not connected.',
   inputSchema: { type: 'object', properties: {}, additionalProperties: false },
 };
@@ -71,7 +77,7 @@ const INSTRUCTIONS =
   'local Wi-Fi network, through a bridge on this computer. Edits apply immediately to the ' +
   'user\'s project and are undoable in the app. If a tool result says ExpoCut is unreachable ' +
   'or not connected, call expocut_connection and relay its steps: open ' + SETTINGS_PATH +
-  ', keep the phone awake on the same Wi-Fi, then run /expocut:connect <url> <token>. ' +
+  ', keep the phone awake on the same Wi-Fi, then ' + PAIR_HINT + '. ' +
   'Conventions: time arguments are seconds, positions are 0-100 % of the canvas, call ' +
   'open_project before adding layers, and look up ids with the list_* tools before setters.';
 
@@ -180,7 +186,7 @@ export async function loadConfig() {
       url: normalizeUrl(envUrl),
       token: envToken,
       source: 'env',
-      autoDiscover: process.env.EXPOCUT_AUTO_DISCOVER !== '0',
+      autoDiscover: !['0', 'false'].includes(String(process.env.EXPOCUT_AUTO_DISCOVER ?? '').toLowerCase()),
     };
   }
   const file = await readJson(configPath());
@@ -499,13 +505,19 @@ function unreachableHelp(url) {
     `  2. Keep the phone awake with ExpoCut in the foreground (the server stops when the app is suspended).`,
     `  3. Phone and computer must be on the same Wi-Fi.${here} Guest networks and "AP isolation" block this.`,
     '  4. On iPhone/iPad, allow Local Network access (Settings → Privacy & Security → Local Network → ExpoCut).',
-    '  5. If the address in ExpoCut differs from the one above, run /expocut:connect <url> <token> with the new values.',
+    `  5. If the address in ExpoCut differs from the one above, ${PAIR_HINT} with the new values.`,
   ].join('\n');
 }
 
 export function explainError(e) {
   switch (e?.kind) {
     case 'not_configured':
+      if (HOST === 'desktop') {
+        return [
+          'ExpoCut is not connected to Claude yet.',
+          `Ask the user to open ${SETTINGS_PATH}, turn it on, then ${PAIR_HINT}.`,
+        ].join('\n');
+      }
       return [
         'ExpoCut is not connected to Claude Code yet.',
         `Ask the user to open ${SETTINGS_PATH}, turn it on, and run:`,
@@ -513,7 +525,7 @@ export function explainError(e) {
         '(they can also paste the whole "claude mcp add …" line ExpoCut shows).',
       ].join('\n');
     case 'unauthorized':
-      return `${e.message}. The token may have been rotated: copy the current one from ${SETTINGS_PATH} and run /expocut:connect <url> <token> again.`;
+      return `${e.message}. The token may have been rotated: copy the current one from ${SETTINGS_PATH} and ${PAIR_HINT} again.`;
     case 'unreachable':
       return unreachableHelp(e.message.match(/https?:\/\/\S+/)?.[0] ?? 'the saved address');
     default:

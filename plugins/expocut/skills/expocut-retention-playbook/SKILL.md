@@ -1,10 +1,10 @@
 ---
 name: expocut-retention-playbook
 description: "Retention editing for TikTok, Instagram Reels and YouTube Shorts inside ExpoCut through the in-app MCP server: the first-second hook (open mid-action, a four to seven word text hook, an audio spike), a visible change every three to five seconds, snap punch-ins as hold keyframes at real timeline milliseconds, duration targets per platform, text kept inside platform safe zones checked with describe_canvas and the capture_canvas grid, seamless loop endings, a cover frame, and a preview_filmstrip verify loop. Use when the user wants a video to perform, go viral, hold attention, asks about hooks, retention, watch time, completion rate, the best length for a platform, where text is safe from the app UI, why viewers swipe away, or wants a cover frame. It decides what to change and when, then calls the executing skills (expocut-video-creating, expocut-social-speed-edit, expocut-audio-post, expocut-kinetic-captions). Do not use for long-form YouTube pacing beyond the basics."
-license: MIT
+license: Free to use and redistribute with attribution to expocut.com.
 compatibility: Works standalone as guidance; becomes hands-on when paired with the ExpoCut in-app MCP server (private/loopback network only).
 metadata:
-  author: ExpoCut (expocut.com)
+  author: ExpoCut (expotechin.com)
   version: "3.0.0"
   homepage: https://expocut.com/skill.html
 ---

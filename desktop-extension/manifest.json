@@ -1,0 +1,72 @@
+{
+  "manifest_version": "0.3",
+  "name": "expocut",
+  "display_name": "ExpoCut",
+  "version": "0.1.0",
+  "description": "Edit videos on your phone from Claude: connects to the ExpoCut editor over local Wi-Fi with 260+ MCP tools to build, review and export videos.",
+  "long_description": "ExpoCut is a mobile video editor with an MCP server built in. This extension runs a small bridge on your computer that forwards every tool call to the app on your phone over your local Wi-Fi. Nothing goes through the cloud: edits land live on the timeline where you can undo them.\n\nSetup: in ExpoCut open Settings → AI Agent (MCP Server), turn it on, then paste the Server URL and Bearer Token into this extension's settings. The bridge re-finds the phone on your subnet when its address changes and keeps the tool list available while the phone is asleep.\n\nTools cover projects, clips, keyframes, masks, text animations, effects, shaders, LUT and CDL grading, stems and ducking, on-device voiceover and captions, Lottie / FCPXML / .mogrt import, and export to MP4.",
+  "author": {
+    "name": "ExpoCut",
+    "url": "https://expocut.com"
+  },
+  "icon": "icon.png",
+  "homepage": "https://expocut.com/mcp.html",
+  "documentation": "https://github.com/expocut/claude-plugin/blob/main/desktop-extension/README.md",
+  "support": "https://github.com/expocut/claude-plugin/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/expocut/claude-plugin"
+  },
+  "license": "MIT",
+  "keywords": ["expocut", "video", "video-editor", "reels", "tiktok", "mcp", "mobile"],
+  "server": {
+    "type": "node",
+    "entry_point": "bridge/expocut-mcp-bridge.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/bridge/expocut-mcp-bridge.mjs"],
+      "env": {
+        "EXPOCUT_HOST": "desktop",
+        "EXPOCUT_MCP_URL": "${user_config.server_url}",
+        "EXPOCUT_MCP_TOKEN": "${user_config.token}",
+        "EXPOCUT_AUTO_DISCOVER": "${user_config.auto_discover}"
+      }
+    }
+  },
+  "tools_generated": true,
+  "tools": [
+    {
+      "name": "expocut_connection",
+      "description": "Check whether ExpoCut on the phone is reachable and explain the setup steps when it is not."
+    }
+  ],
+  "user_config": {
+    "server_url": {
+      "type": "string",
+      "title": "Server URL",
+      "description": "Shown in ExpoCut → Settings → AI Agent (MCP Server), for example http://192.168.1.20:7333/mcp. The phone and this computer must be on the same Wi-Fi.",
+      "required": true
+    },
+    "token": {
+      "type": "string",
+      "title": "Bearer Token",
+      "description": "Shown next to the Server URL in ExpoCut. Tap Rotate in the app to revoke it.",
+      "sensitive": true,
+      "required": true
+    },
+    "auto_discover": {
+      "type": "boolean",
+      "title": "Find the phone automatically when its address changes",
+      "description": "When the saved address stops answering, scan this computer's local subnet for ExpoCut. The token is only sent to a host that identifies itself as ExpoCut.",
+      "default": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  },
+  "privacy_policies": ["https://expocut.com/privacy.html"]
+}

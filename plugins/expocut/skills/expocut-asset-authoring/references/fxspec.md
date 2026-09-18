@@ -1,6 +1,6 @@
 # FxSpec v1.0 reference (for fx_dry_run, fx_register_spec, fx_compose_from_template)
 
-Read this when you are writing a spec object by hand. The shapes below are taken from the app's FxSpec type definitions and validator; anything not listed is rejected with `InvalidSpec`.
+Read this when you are writing a spec object by hand. The shapes below are taken from the app's `fx-spec/types.ts` and `fx-spec/validate.ts`; anything not listed is rejected with `InvalidSpec`.
 
 ## Top-level fields
 
@@ -48,6 +48,6 @@ Each input: `{ NAME, LABEL?, TYPE, ... }` with TYPE one of event, bool (`DEFAULT
 - `transition.distortion.warp`, `transition.distortion.ripple`, `transition.distortion.melt`, `transition.distortion.inkBleed`, `transition.distortion.liquid`, `transition.distortion.twirl`, `transition.distortion.pinch`, `transition.distortion.displace` - the `params` keys are the family's own (read the `warnings` for clamps); the generated spec is category Distortion, kind transition, with an opacity envelope 0 to 1 to 0 and a `templateRef` block naming the preset and resolved params.
 - `transition.lightLeak.warm-sunset`, `transition.lightLeak.cool-window`, `transition.lightLeak.prism-rainbow`, `transition.lightLeak.vintage-orange`, `transition.lightLeak.neon-magenta`, `transition.lightLeak.soft-anamorphic` - only `params.intensity` (0..1) is read; the spec is category Light, kind transition, default 700 ms.
 
-## What renders
+## What renders today
 
-Registered specs live in the FxSpec registry (in memory, or on disk when persisted) and show up in `fx_list_custom` and the AI Operations screen. The timeline setters (`set_layer_effect`, `set_layer_transition`, `set_junction_transition`) validate ids against the built-in effect and transition catalogs, so an `ai.` id is rejected there. Use the dry-run samples to design a curve, then express it with `keyframe_add` on the layer if it must render now.
+Registered specs live in the FxSpec registry (in memory, plus `Documents/customFx/<id>.fx.json` when persisted) and show up in `fx_list_custom` and the AI Operations screen. The timeline setters (`set_layer_effect`, `set_layer_transition`, `set_junction_transition`) validate ids against the built-in effect and transition catalogs, so an `ai.` id is rejected there. Use the dry-run samples to design a curve, then express it with `keyframe_add` on the layer if it must render now.
