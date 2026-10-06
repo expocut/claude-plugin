@@ -2,7 +2,12 @@
   "mcpServers": {
     "expocut": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs"]
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs"],
+      "env": {
+        "EXPOCUT_MCP_URL": "${user_config.server_url}",
+        "EXPOCUT_MCP_TOKEN": "${user_config.token}",
+        "EXPOCUT_AUTO_DISCOVER": "${user_config.auto_discover}"
+      }
     }
   }
 }

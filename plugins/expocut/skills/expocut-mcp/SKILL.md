@@ -18,15 +18,16 @@ forwards every tool call to the app; nothing goes through the internet.
 
 - The phone must be **awake with ExpoCut in the foreground** and on the
   **same Wi-Fi** as this computer. The server stops when the app is suspended.
-- The user pairs once with `/expocut:connect <Server URL> <Bearer Token>`
-  (values from **ExpoCut → Settings → AI Agent (MCP Server)**). The bridge
-  keeps the pairing in `~/.expocut/claude-mcp.json` and re-finds the phone on
-  the subnet when its address changes.
+- The user pairs once in the plugin's settings: `/plugin` → **Installed** →
+  **expocut** → **Configure options**, with the Server URL and Bearer Token
+  from **ExpoCut → Settings → AI Agent (MCP Server)**, then `/reload-plugins`.
+  The token lives in the system credential store. The bridge re-finds the
+  phone on the subnet when its address changes.
 - `expocut_connection` is always available. Call it when any other ExpoCut
   tool returns an error mentioning "unreachable" or "not connected", then
   relay its checklist to the user instead of retrying blindly.
-- Never ask the user for the token in chat when it is already paired; never
-  paste tokens into project files.
+- Never ask the user to paste the token into chat, and never write tokens
+  into project files; it belongs in **Configure options** only.
 
 ## When ExpoCut is not connected
 
@@ -36,8 +37,9 @@ Tell the user, in order:
 2. On iPhone/iPad, allow **Local Network** access when prompted (or in
    Settings → Privacy & Security → Local Network → ExpoCut).
 3. Keep the phone on the same Wi-Fi and unlocked with ExpoCut open.
-4. Run `/expocut:connect <url> <token>` with the values shown in the app, or
-   `/expocut:status` to re-check.
+4. Put the Server URL and Bearer Token shown in the app into `/plugin` →
+   **Installed** → **expocut** → **Configure options**, run `/reload-plugins`,
+   then `/expocut:status` to re-check. `/expocut:connect` walks through this.
 
 ## Conventions every tool follows
 

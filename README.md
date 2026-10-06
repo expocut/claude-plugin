@@ -34,12 +34,10 @@ claude plugin install expocut
 (If you have several marketplaces with a plugin called `expocut`, use
 `claude plugin install expocut@expocut-plugins`.)
 
-Then in ExpoCut open **Settings → AI Agent (MCP Server)**, switch it on, tap the
-**Claude Code plugin** tab and copy the line it shows. Paste it into Claude Code:
-
-```
-/expocut:connect http://192.168.1.20:7333/mcp <token>
-```
+Then in ExpoCut open **Settings → AI Agent (MCP Server)**, switch it on, and
+copy the **Server URL** and **Bearer Token**. In Claude Code run `/plugin`, open
+**Installed → expocut → Configure options**, paste both, and run
+`/reload-plugins`. `/expocut:connect` walks you through it.
 
 Needs Node.js 18+ on the computer, and the phone on the same Wi-Fi. Full guide,
 how the bridge works and troubleshooting: [plugins/expocut/README.md](plugins/expocut/README.md).

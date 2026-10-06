@@ -1,6 +1,6 @@
 {
   "name": "expocut",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Connect Claude Code to the ExpoCut video editor on your phone over local Wi-Fi: 260+ MCP tools to build, review and export videos, plus ExpoCut's editing skills.",
   "author": {
     "name": "ExpoCut",
@@ -17,5 +17,24 @@
     "reels",
     "tiktok"
   ],
-  "repository": "https://github.com/expocut/claude-plugin"
+  "repository": "https://github.com/expocut/claude-plugin",
+  "userConfig": {
+    "server_url": {
+      "type": "string",
+      "title": "Server URL",
+      "description": "Shown in ExpoCut → Settings → AI Agent (MCP Server), for example http://192.168.1.20:7333/mcp. The phone and this computer must be on the same Wi-Fi."
+    },
+    "token": {
+      "type": "string",
+      "title": "Bearer Token",
+      "description": "Shown next to the Server URL in ExpoCut. Stored in your system credential store. Tap Rotate in the app to revoke it.",
+      "sensitive": true
+    },
+    "auto_discover": {
+      "type": "boolean",
+      "title": "Find the phone automatically when its address changes",
+      "description": "When the Server URL stops answering, scan this computer's local subnet for ExpoCut. The token is only sent to a host that identifies itself as ExpoCut.",
+      "default": true
+    }
+  }
 }

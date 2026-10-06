@@ -2,17 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 
-import { normalizeUrl, parseConnectInput, CONNECTION_TOOL } from '../plugins/expocut/bridge/expocut-mcp-bridge.mjs';
+import { normalizeUrl, CONNECTION_TOOL } from '../plugins/expocut/bridge/expocut-mcp-bridge.mjs';
 
 const BRIDGE = join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'expocut', 'bridge', 'expocut-mcp-bridge.mjs');
 const TOKEN = 'fd971edc9f4dd9a8fefed9b9';
 const DEAD_URL = 'http://127.0.0.1:1/mcp';
+// Keep a developer's own pairing out of the tests.
+const UNSET = { EXPOCUT_MCP_URL: '', EXPOCUT_MCP_TOKEN: '', EXPOCUT_AUTO_DISCOVER: '', EXPOCUT_HOST: '', CLAUDE_PLUGIN_DATA: '' };
 
 // ─── fake phone: mirrors the in-app MCP server's behaviour ────────────
 
@@ -85,7 +87,7 @@ function fakePhone({ token = TOKEN } = {}) {
 class StdioClient {
   constructor(env = {}) {
     this.child = spawn(process.execPath, [BRIDGE], {
-      env: { ...process.env, ...env },
+      env: { ...process.env, ...UNSET, ...env },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     this.pending = new Map();
@@ -156,15 +158,22 @@ class StdioClient {
   }
 }
 
-async function tempConfigDir(config) {
-  const dir = await mkdtemp(join(tmpdir(), 'expocut-bridge-'));
-  if (config) await writeFile(join(dir, 'claude-mcp.json'), JSON.stringify(config));
-  return dir;
+async function tempDir() {
+  return mkdtemp(join(tmpdir(), 'expocut-bridge-'));
 }
+
+// What Claude Code puts in the bridge's environment from the plugin's userConfig.
+function pairing(dir, url, { token = TOKEN, autoDiscover } = {}) {
+  const env = { EXPOCUT_CONFIG_DIR: dir, EXPOCUT_MCP_URL: url, EXPOCUT_MCP_TOKEN: token };
+  if (autoDiscover !== undefined) env.EXPOCUT_AUTO_DISCOVER = String(autoDiscover);
+  return env;
+}
+
+const exists = (path) => access(path).then(() => true, () => false);
 
 function runCli(args, env) {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, [BRIDGE, ...args], { env: { ...process.env, ...env } });
+    const child = spawn(process.execPath, [BRIDGE, ...args], { env: { ...process.env, ...UNSET, ...env } });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (c) => (stdout += c));
@@ -176,24 +185,6 @@ function runCli(args, env) {
 const toolNames = (res) => res.result.tools.map((t) => t.name);
 
 // ─── unit: input parsing ─────────────────────────────────────────────
-
-test('parseConnectInput understands every snippet ExpoCut shows', () => {
-  const url = 'http://192.168.1.65:7333/mcp';
-  const cases = [
-    `${url} ${TOKEN}`,
-    `${TOKEN} ${url}`,
-    `claude mcp add --transport http expocut ${url} --header "Authorization: Bearer ${TOKEN}"`,
-    `{"mcpServers":{"expocut":{"url":"${url}","headers":{"Authorization":"Bearer ${TOKEN}"}}}}`,
-    `${url}/console.html#tok=${TOKEN}`,
-    `http://192.168.1.65:7333 ${TOKEN}`,
-    `http://192.168.1.65:7333/mcp/ ${TOKEN}`,
-  ];
-  for (const input of cases) {
-    assert.deepEqual(parseConnectInput(input), { url, token: TOKEN }, input);
-  }
-  assert.deepEqual(parseConnectInput(''), { url: null, token: null });
-  assert.equal(parseConnectInput(url).token, null);
-});
 
 test('normalizeUrl canonicalises to /mcp and rejects junk', () => {
   assert.equal(normalizeUrl('http://10.0.0.5:7333'), 'http://10.0.0.5:7333/mcp');
@@ -207,13 +198,13 @@ test('normalizeUrl canonicalises to /mcp and rejects junk', () => {
 
 test('proxies tools/list and tools/call to the phone when configured', async () => {
   const phone = await fakePhone();
-  const dir = await tempConfigDir({ url: phone.url, token: TOKEN });
-  const client = new StdioClient({ EXPOCUT_CONFIG_DIR: dir });
+  const dir = await tempDir();
+  const client = new StdioClient(pairing(dir, phone.url));
   try {
     const init = await client.initialize();
     assert.equal(init.result.protocolVersion, '2025-06-18');
     assert.deepEqual(init.result.capabilities, { tools: { listChanged: true } });
-    assert.match(init.result.instructions, /expocut:connect/);
+    assert.match(init.result.instructions, /Configure options/);
 
     const list = await client.request('tools/list', {});
     assert.deepEqual(toolNames(list), [CONNECTION_TOOL.name, 'fake_echo']);
@@ -236,8 +227,10 @@ test('proxies tools/list and tools/call to the phone when configured', async () 
     assert.equal(phone.calls.filter((c) => c.method === 'initialize').length, 1);
     assert.ok(phone.calls.some((c) => c.method === 'notifications/initialized'));
 
-    const cache = JSON.parse(await readFile(join(dir, 'claude-mcp-tools.json'), 'utf8'));
-    assert.equal(cache.tools[0].name, 'fake_echo');
+    // The cache holds tool schemas only, never the token.
+    const cacheText = await readFile(join(dir, 'claude-mcp-tools.json'), 'utf8');
+    assert.equal(JSON.parse(cacheText).tools[0].name, 'fake_echo');
+    assert.ok(!cacheText.includes(TOKEN));
   } finally {
     await client.close();
     await phone.close();
@@ -245,12 +238,16 @@ test('proxies tools/list and tools/call to the phone when configured', async () 
   }
 });
 
-// ─── stdio bridge, not configured → connect without restart ─────────
+// ─── stdio bridge, not configured ────────────────────────────────────
 
-test('starts unconfigured and picks up /expocut:connect via tools/list_changed', async () => {
-  const phone = await fakePhone();
-  const dir = await tempConfigDir(null);
-  const client = new StdioClient({ EXPOCUT_CONFIG_DIR: dir });
+test('starts unconfigured and explains where the settings go', async () => {
+  const dir = await tempDir();
+  // An unset userConfig option can arrive as the literal placeholder.
+  const client = new StdioClient({
+    EXPOCUT_CONFIG_DIR: dir,
+    EXPOCUT_MCP_URL: '${user_config.server_url}',
+    EXPOCUT_MCP_TOKEN: '${user_config.token}',
+  });
   try {
     await client.initialize();
     const before = await client.request('tools/list', {});
@@ -259,17 +256,24 @@ test('starts unconfigured and picks up /expocut:connect via tools/list_changed',
     const blocked = await client.request('tools/call', { name: 'fake_echo', arguments: {} });
     assert.equal(blocked.result.isError, true);
     assert.match(blocked.result.content[0].text, /not connected/);
-
-    const cli = await runCli(['connect', `claude mcp add --transport http expocut ${phone.url} --header "Authorization: Bearer ${TOKEN}"`], { EXPOCUT_CONFIG_DIR: dir });
-    assert.equal(cli.code, 0, cli.stdout + cli.stderr);
-    assert.match(cli.stdout, /Connected to ExpoCut 9\.9\.9/);
-
-    await client.waitForNotification('notifications/tools/list_changed');
-    const after = await client.request('tools/list', {});
-    assert.deepEqual(toolNames(after), [CONNECTION_TOOL.name, 'fake_echo']);
+    assert.match(blocked.result.content[0].text, /Configure options/);
+    assert.match(blocked.result.content[0].text, /Do not ask the user to paste it into the chat/);
   } finally {
     await client.close();
-    await phone.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('reports an unusable Server URL instead of crashing', async () => {
+  const dir = await tempDir();
+  const client = new StdioClient(pairing(dir, '192.168.1.20:7333'));
+  try {
+    await client.initialize();
+    const status = await client.request('tools/call', { name: CONNECTION_TOOL.name, arguments: {} });
+    assert.equal(status.result.isError, true);
+    assert.match(status.result.content[0].text, /Server URL in the expocut plugin settings is not usable/);
+  } finally {
+    await client.close();
     await rm(dir, { recursive: true, force: true });
   }
 });
@@ -277,12 +281,12 @@ test('starts unconfigured and picks up /expocut:connect via tools/list_changed',
 // ─── phone off: cached tools + clear error ───────────────────────────
 
 test('serves the cached tool list and a clear error while the phone is unreachable', async () => {
-  const dir = await tempConfigDir({ url: DEAD_URL, token: TOKEN, autoDiscover: false });
+  const dir = await tempDir();
   await writeFile(
     join(dir, 'claude-mcp-tools.json'),
     JSON.stringify({ url: DEAD_URL, tools: [{ name: 'fake_echo', description: 'cached', inputSchema: { type: 'object' } }] }),
   );
-  const client = new StdioClient({ EXPOCUT_CONFIG_DIR: dir });
+  const client = new StdioClient(pairing(dir, DEAD_URL, { autoDiscover: false }));
   try {
     await client.initialize();
     const list = await client.request('tools/list', {});
@@ -300,11 +304,11 @@ test('serves the cached tool list and a clear error while the phone is unreachab
 
 // ─── phone moved: rediscovery on the subnet ─────────────────────────
 
-test('rediscovers the phone on the subnet when the saved address dies, and saves it', async () => {
+test('rediscovers the phone on the subnet when the configured address dies', async () => {
   const phone = await fakePhone();
-  const dir = await tempConfigDir({ url: DEAD_URL, token: TOKEN });
+  const dir = await tempDir();
   const client = new StdioClient({
-    EXPOCUT_CONFIG_DIR: dir,
+    ...pairing(dir, DEAD_URL),
     EXPOCUT_DISCOVERY_HOSTS: `127.0.0.1:1,127.0.0.1:${phone.port}`,
   });
   try {
@@ -312,13 +316,14 @@ test('rediscovers the phone on the subnet when the saved address dies, and saves
     const list = await client.request('tools/list', {});
     assert.deepEqual(toolNames(list), [CONNECTION_TOOL.name, 'fake_echo']);
 
-    const saved = JSON.parse(await readFile(join(dir, 'claude-mcp.json'), 'utf8'));
-    assert.equal(saved.url, phone.url);
-    assert.equal(saved.token, TOKEN);
+    const status = await client.request('tools/call', { name: CONNECTION_TOOL.name, arguments: {} });
+    assert.match(status.result.content[0].text, new RegExp(`phone moved to ${phone.url.replace(/[.]/g, '\\.')}`));
+
+    // Nothing credential-bearing is written to disk.
+    assert.equal(await exists(join(dir, 'claude-mcp.json')), false);
 
     // Discovery fingerprinted first (no token), then handshook with the token.
-    const unauth = phone.calls.length; // 401s never reach the JSON handler
-    assert.ok(unauth >= 1);
+    assert.ok(phone.calls.length >= 1); // 401s never reach the JSON handler
     assert.equal(phone.calls[0].method, 'initialize');
   } finally {
     await client.close();
@@ -331,8 +336,8 @@ test('rediscovers the phone on the subnet when the saved address dies, and saves
 
 test('reports a rotated token instead of failing silently', async () => {
   const phone = await fakePhone({ token: 'something-else-entirely' });
-  const dir = await tempConfigDir({ url: phone.url, token: TOKEN, autoDiscover: false });
-  const client = new StdioClient({ EXPOCUT_CONFIG_DIR: dir });
+  const dir = await tempDir();
+  const client = new StdioClient(pairing(dir, phone.url, { autoDiscover: false }));
   try {
     await client.initialize();
     const list = await client.request('tools/list', {});
@@ -340,11 +345,7 @@ test('reports a rotated token instead of failing silently', async () => {
     const call = await client.request('tools/call', { name: 'fake_echo', arguments: {} });
     assert.equal(call.result.isError, true);
     assert.match(call.result.content[0].text, /rejected the token/);
-
-    const cli = await runCli(['connect', phone.url, TOKEN], { EXPOCUT_CONFIG_DIR: dir });
-    assert.equal(cli.code, 1);
-    assert.match(cli.stdout, /rejected the token/);
-    assert.match(cli.stdout, /Nothing was saved/);
+    assert.match(call.result.content[0].text, /Configure options/);
   } finally {
     await client.close();
     await phone.close();
@@ -352,45 +353,32 @@ test('reports a rotated token instead of failing silently', async () => {
   }
 });
 
-// ─── CLI: status / discover / disconnect ─────────────────────────────
+// ─── CLI: status / discover ──────────────────────────────────────────
 
-test('status, discover and disconnect CLI round-trip', async () => {
+test('status and discover CLI read the same settings', async () => {
   const phone = await fakePhone();
-  const dir = await tempConfigDir(null);
-  const env = { EXPOCUT_CONFIG_DIR: dir, EXPOCUT_DISCOVERY_HOSTS: `127.0.0.1:${phone.port}` };
+  const dir = await tempDir();
+  const hosts = { EXPOCUT_DISCOVERY_HOSTS: `127.0.0.1:${phone.port}` };
   try {
-    let r = await runCli(['status'], env);
+    let r = await runCli(['status'], { EXPOCUT_CONFIG_DIR: dir });
     assert.equal(r.code, 1);
     assert.match(r.stdout, /not connected to Claude Code yet/);
 
-    // --report is what the slash commands pass: same message, exit 0
-    r = await runCli(['status', '--report'], env);
-    assert.equal(r.code, 0);
-    assert.match(r.stdout, /not connected to Claude Code yet/);
-    r = await runCli(['connect', '--report'], env);
-    assert.equal(r.code, 0);
-    assert.match(r.stdout, /Nothing to connect to/);
+    r = await runCli(['discover'], { EXPOCUT_CONFIG_DIR: dir, ...hosts });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    assert.match(r.stdout, /Use it as the Server URL/);
 
-    r = await runCli(['discover', '--token', TOKEN, '--save'], env);
+    r = await runCli(['discover'], { ...pairing(dir, DEAD_URL), ...hosts });
     assert.equal(r.code, 0, r.stdout + r.stderr);
     assert.match(r.stdout, /token accepted/);
 
-    r = await runCli(['status'], env);
+    r = await runCli(['status'], pairing(dir, phone.url));
     assert.equal(r.code, 0, r.stdout + r.stderr);
     assert.match(r.stdout, /Connected: ExpoCut 9\.9\.9 at http:\/\/127\.0\.0\.1:\d+\/mcp \(MCP 2025-06-18\), 1 tools/);
 
-    r = await runCli(['disconnect'], env);
-    assert.equal(r.code, 0);
-    r = await runCli(['status'], env);
-    assert.equal(r.code, 1);
-
-    r = await runCli(['connect'], env);
+    r = await runCli(['connect', phone.url, TOKEN], { EXPOCUT_CONFIG_DIR: dir });
     assert.equal(r.code, 2);
-    assert.match(r.stdout, /Nothing to connect to/);
-
-    r = await runCli(['connect', 'http://127.0.0.1:1/mcp', TOKEN], { EXPOCUT_CONFIG_DIR: dir });
-    assert.equal(r.code, 1);
-    assert.match(r.stdout, /Saved .* but it is not answering right now/);
+    assert.match(r.stdout, /Unknown command "connect"/);
   } finally {
     await phone.close();
     await rm(dir, { recursive: true, force: true });

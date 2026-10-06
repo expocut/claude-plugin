@@ -13,46 +13,42 @@
  * quickly. This bridge sits between Claude Code (stdio) and the phone (HTTP):
  *
  *   - it always starts, so Claude Code never shows a failed server;
- *   - it reads the address + token from ~/.expocut/claude-mcp.json (written by
- *     `/expocut:connect`) or from EXPOCUT_MCP_URL / EXPOCUT_MCP_TOKEN;
- *   - when the saved address stops answering it looks for the phone on the
- *     same /24 subnet (fingerprint first, token only to hosts that answer with
- *     ExpoCut's 401 realm) and updates the saved address;
+ *   - it takes the address + token only from EXPOCUT_MCP_URL / EXPOCUT_MCP_TOKEN,
+ *     which the host fills from the user's plugin settings (Claude Code
+ *     `userConfig`, Claude Desktop `user_config`; the token is stored in the
+ *     OS credential store, never in a file this bridge reads or writes);
+ *   - when the configured address stops answering it looks for the phone on
+ *     the same /24 subnet (fingerprint first, token only to hosts that answer
+ *     with ExpoCut's 401 realm) and uses the new address for this session;
  *   - when the phone is off it serves the last known tool list and returns a
- *     clear "unreachable" tool error instead of a protocol failure;
- *   - it watches the config file and emits `notifications/tools/list_changed`
- *     so a fresh connection shows up without restarting Claude Code.
+ *     clear "unreachable" tool error instead of a protocol failure.
  *
  * Zero dependencies. Node 18+ (built-in fetch). stdout is reserved for MCP
  * framing; every log line goes to stderr.
  *
- * CLI:
- *   expocut-mcp-bridge.mjs                       serve (stdio MCP, used by .mcp.json)
- *   expocut-mcp-bridge.mjs connect <url> <token> save + verify a connection
- *   expocut-mcp-bridge.mjs status                 show the current connection
- *   expocut-mcp-bridge.mjs discover [--save]      scan the local subnet for ExpoCut
- *   expocut-mcp-bridge.mjs disconnect             forget the saved connection
+ * CLI (reads the same environment variables):
+ *   expocut-mcp-bridge.mjs             serve (stdio MCP, used by .mcp.json)
+ *   expocut-mcp-bridge.mjs status      show the configured connection
+ *   expocut-mcp-bridge.mjs discover    scan the local subnet for ExpoCut
  */
 
 import { createInterface } from 'node:readline';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { watch } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir, networkInterfaces } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-export const VERSION = '0.1.1';
+export const VERSION = '0.2.0';
 export const DEFAULT_PORT = 7333;
 export const PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
-export const CONFIG_FILE = 'claude-mcp.json';
 export const TOOLS_CACHE_FILE = 'claude-mcp-tools.json';
 export const SETTINGS_PATH = 'ExpoCut → Settings → AI Agent (MCP Server)';
-// EXPOCUT_HOST=desktop is set by the Claude Desktop extension bundle; pairing
-// then happens in the extension's settings instead of a slash command.
+// EXPOCUT_HOST=desktop is set by the Claude Desktop extension bundle. Either
+// way the user pairs in the host's settings for this plugin or extension.
 export const HOST = process.env.EXPOCUT_HOST === 'desktop' ? 'desktop' : 'claude-code';
 export const PAIR_HINT = HOST === 'desktop'
   ? 'enter the Server URL and Bearer Token in Claude Desktop → Settings → Extensions → ExpoCut → Configure'
-  : 'run /expocut:connect <url> <token>';
+  : 'enter the Server URL and Bearer Token in Claude Code: /plugin → Installed → expocut → Configure options, then /reload-plugins';
 
 const PROBE_TIMEOUT_MS = 3000;
 const LIST_TIMEOUT_MS = 15000;
@@ -92,11 +88,9 @@ export const log = {
 
 // ─── config ──────────────────────────────────────────────────────────
 
+// Only the tool-list cache lives here; it holds tool schemas, no credentials.
 export function configDir() {
-  return process.env.EXPOCUT_CONFIG_DIR || join(homedir(), '.expocut');
-}
-export function configPath() {
-  return join(configDir(), CONFIG_FILE);
+  return process.env.EXPOCUT_CONFIG_DIR || process.env.CLAUDE_PLUGIN_DATA || join(homedir(), '.expocut');
 }
 export function toolsCachePath() {
   return join(configDir(), TOOLS_CACHE_FILE);
@@ -138,88 +132,22 @@ export function normalizeUrl(raw) {
   return url.toString();
 }
 
-/**
- * Find a URL and a token in free-form text: `<url> <token>`, the
- * `claude mcp add … --header "Authorization: Bearer …"` line the app shows,
- * the Cursor/VS Code JSON snippet, or the console link (`…#tok=…`).
- */
-export function parseConnectInput(text) {
-  const src = String(text ?? '').trim();
-  let url = null;
-  let token = null;
-
-  const urlMatch = src.match(/https?:\/\/[^\s"'<>`]+/i);
-  if (urlMatch) {
-    let candidate = urlMatch[0].replace(/[),.;\\]+$/, '');
-    const tok = candidate.match(/[#?&]tok=([^&\s"']+)/);
-    if (tok) token = safeDecode(tok[1]);
-    url = normalizeUrl(candidate);
-  }
-
-  if (!token) {
-    const bearer = src.match(/Bearer\s+([A-Za-z0-9._~+/=-]+)/i);
-    if (bearer) token = bearer[1];
-  }
-  if (!token) {
-    const words = src.split(/\s+/).filter(Boolean);
-    const loose = words.find(
-      (w) => !/^https?:\/\//i.test(w) && /^[A-Za-z0-9._~+/=-]{16,}$/.test(w) && !w.includes('.'),
-    );
-    if (loose) token = loose;
-  }
-  return { url, token };
+// A host leaves an option it has no value for either empty or as the literal
+// `${user_config.…}` placeholder; treat both as unset.
+function setting(name) {
+  const v = String(process.env[name] ?? '').trim();
+  return v && !v.startsWith('${') ? v : null;
 }
 
-function safeDecode(s) {
-  try {
-    return decodeURIComponent(s);
-  } catch {
-    return s;
-  }
-}
-
-export async function loadConfig() {
-  const envUrl = process.env.EXPOCUT_MCP_URL;
-  const envToken = process.env.EXPOCUT_MCP_TOKEN;
-  if (envUrl && envToken) {
-    return {
-      url: normalizeUrl(envUrl),
-      token: envToken,
-      source: 'env',
-      autoDiscover: !['0', 'false'].includes(String(process.env.EXPOCUT_AUTO_DISCOVER ?? '').toLowerCase()),
-    };
-  }
-  const file = await readJson(configPath());
-  if (file && typeof file.url === 'string' && typeof file.token === 'string') {
-    try {
-      return {
-        url: normalizeUrl(file.url),
-        token: file.token,
-        source: 'file',
-        autoDiscover: file.autoDiscover !== false,
-      };
-    } catch (e) {
-      log.warn(`ignoring ${configPath()}: ${e.message}`);
-    }
-  }
-  return null;
-}
-
-export async function saveConfig({ url, token, autoDiscover }) {
-  const existing = (await readJson(configPath())) ?? {};
-  const next = {
+export function loadConfig() {
+  const url = setting('EXPOCUT_MCP_URL');
+  const token = setting('EXPOCUT_MCP_TOKEN');
+  if (!url || !token) return null;
+  return {
     url: normalizeUrl(url),
     token,
-    autoDiscover: autoDiscover ?? existing.autoDiscover ?? true,
-    updatedAt: new Date().toISOString(),
+    autoDiscover: !['0', 'false'].includes(String(setting('EXPOCUT_AUTO_DISCOVER') ?? '').toLowerCase()),
   };
-  await writeJson(configPath(), next);
-  return next;
-}
-
-export async function clearConfig() {
-  await rm(configPath(), { force: true });
-  await rm(toolsCachePath(), { force: true });
 }
 
 // ─── upstream HTTP JSON-RPC ──────────────────────────────────────────
@@ -436,6 +364,7 @@ export class Upstream {
     this.session = null;
     this.pending = null;
     this.lastError = null;
+    this.foundUrl = null; // address found by discovery, kept for this process only
   }
 
   reset() {
@@ -453,12 +382,17 @@ export class Upstream {
   }
 
   async connect() {
-    const cfg = await loadConfig();
+    let cfg;
+    try {
+      cfg = loadConfig();
+    } catch (e) {
+      throw (this.lastError = new UpstreamError('bad_config', e.message));
+    }
     if (!cfg) {
       throw (this.lastError = new UpstreamError('not_configured', 'ExpoCut is not connected yet'));
     }
     try {
-      this.session = await handshake(cfg.url, cfg.token);
+      this.session = await handshake(this.foundUrl ?? cfg.url, cfg.token);
       this.lastError = null;
       return this.session;
     } catch (e) {
@@ -468,9 +402,7 @@ export class Upstream {
       const found = await discover({ token: cfg.token, port });
       if (!found?.session) throw (this.lastError = e);
       log.info(`found ExpoCut at ${found.url}`);
-      if (cfg.source === 'file') {
-        await saveConfig({ url: found.url, token: cfg.token }).catch((err) => log.warn(`could not save new address: ${err.message}`));
-      }
+      this.foundUrl = found.url;
       this.session = found.session;
       this.lastError = null;
       return this.session;
@@ -520,10 +452,12 @@ export function explainError(e) {
       }
       return [
         'ExpoCut is not connected to Claude Code yet.',
-        `Ask the user to open ${SETTINGS_PATH}, turn it on, and run:`,
-        '  /expocut:connect <Server URL> <Bearer Token>',
-        '(they can also paste the whole "claude mcp add …" line ExpoCut shows).',
+        `Ask the user to open ${SETTINGS_PATH}, turn it on, and copy the Server URL and Bearer Token.`,
+        'Then, in Claude Code: /plugin → Installed → expocut → Configure options, paste both, and run /reload-plugins.',
+        'The token is stored in the system credential store. Do not ask the user to paste it into the chat.',
       ].join('\n');
+    case 'bad_config':
+      return `The Server URL in the expocut plugin settings is not usable: ${e.message}. ${PAIR_HINT[0].toUpperCase()}${PAIR_HINT.slice(1)} with the address ExpoCut shows.`;
     case 'unauthorized':
       return `${e.message}. The token may have been rotated: copy the current one from ${SETTINGS_PATH} and ${PAIR_HINT} again.`;
     case 'unreachable':
@@ -534,13 +468,18 @@ export function explainError(e) {
 }
 
 export async function connectionStatus(upstream = new Upstream()) {
-  const cfg = await loadConfig();
+  let cfg;
+  try {
+    cfg = loadConfig();
+  } catch (e) {
+    return { ok: false, configured: false, text: explainError(new UpstreamError('bad_config', e.message)) };
+  }
   const lines = [];
   if (!cfg) {
     lines.push(explainError(new UpstreamError('not_configured', '')));
     return { ok: false, configured: false, text: lines.join('\n') };
   }
-  lines.push(`Saved address: ${cfg.url} (${cfg.source === 'env' ? 'from EXPOCUT_MCP_URL' : `from ${configPath()}`})`);
+  lines.push(`Configured address: ${cfg.url}`);
   try {
     const s = await upstream.ensure();
     let toolCount = null;
@@ -552,6 +491,9 @@ export async function connectionStatus(upstream = new Upstream()) {
     }
     const name = [s.serverInfo?.name, s.serverInfo?.version].filter(Boolean).join(' ') || 'ExpoCut';
     lines.push(`Connected: ${name} at ${s.url} (MCP ${s.protocolVersion})${toolCount != null ? `, ${toolCount} tools` : ''}.`);
+    if (s.url !== cfg.url) {
+      lines.push(`The phone moved to ${s.url}. To skip the search next time, ${PAIR_HINT} with the new Server URL.`);
+    }
     return { ok: true, configured: true, url: s.url, serverInfo: s.serverInfo, toolCount, text: lines.join('\n') };
   } catch (e) {
     lines.push(explainError(e));
@@ -571,35 +513,11 @@ function rpcError(id, code, message, data) {
   return { jsonrpc: '2.0', id: id ?? null, error };
 }
 
-export function startConfigWatcher(onChange) {
-  const dir = configDir();
-  let timer = null;
-  const fire = () => {
-    clearTimeout(timer);
-    timer = setTimeout(onChange, 250);
-  };
-  try {
-    const w = watch(dir, { persistent: false }, (_event, filename) => {
-      if (!filename || String(filename) === CONFIG_FILE) fire();
-    });
-    w.on('error', (e) => log.warn(`config watcher: ${e.message}`));
-    return w;
-  } catch (e) {
-    log.warn(`config watcher unavailable: ${e.message}`);
-    return null;
-  }
-}
-
 export async function serve({ input = process.stdin, output = process.stdout } = {}) {
   const upstream = new Upstream();
   const write = (msg) => output.write(JSON.stringify(msg) + '\n');
 
   await mkdir(configDir(), { recursive: true }).catch(() => {});
-  const watcher = startConfigWatcher(() => {
-    log.info('connection settings changed; refreshing tools');
-    upstream.reset();
-    write({ jsonrpc: '2.0', method: 'notifications/tools/list_changed' });
-  });
 
   async function listTools(params) {
     try {
@@ -705,89 +623,22 @@ export async function serve({ input = process.stdin, output = process.stdout } =
         .catch((e) => write(rpcError(msg?.id, -32603, e?.message || String(e))));
     }
   }
-  watcher?.close();
 }
 
 // ─── CLI ─────────────────────────────────────────────────────────────
 
 const USAGE = `ExpoCut MCP bridge ${VERSION}
 
-  connect <url> <token>   save a connection (or paste the whole "claude mcp add …" line
-                          / the console link ExpoCut shows) and verify it
-  status                  show the saved address and whether ExpoCut answers
-  discover [--save]       scan this computer's local subnet for ExpoCut on port ${DEFAULT_PORT}
-  disconnect              forget the saved connection
+  status                  show the configured address and whether ExpoCut answers
+  discover                scan this computer's local subnet for ExpoCut on port ${DEFAULT_PORT}
   serve                   run as a stdio MCP server (what Claude Code launches)
 
-  --report                with connect/status/discover/disconnect: always exit 0, so a
-                          slash command can relay the message instead of failing
-
-Find the Server URL and Bearer Token in ${SETTINGS_PATH}.
-Environment: EXPOCUT_MCP_URL + EXPOCUT_MCP_TOKEN override the saved file;
-EXPOCUT_CONFIG_DIR changes where it is stored (default ~/.expocut).`;
+Claude Code passes the Server URL and Bearer Token from the plugin's settings
+(/plugin → Installed → expocut → Configure options) as EXPOCUT_MCP_URL and
+EXPOCUT_MCP_TOKEN. Find both values in ${SETTINGS_PATH}.`;
 
 function out(s) {
   process.stdout.write(s + '\n');
-}
-
-async function cliConnect(args) {
-  const text = args.join(' ').trim();
-  if (!text) {
-    out(`Nothing to connect to.\n\nIn ${SETTINGS_PATH}, turn the server on, then run:\n  /expocut:connect <Server URL> <Bearer Token>\nor paste the "claude mcp add …" line ExpoCut shows for Claude Code.`);
-    process.exitCode = 2;
-    return;
-  }
-  let parsed;
-  try {
-    parsed = parseConnectInput(text);
-  } catch (e) {
-    out(`Could not read that: ${e.message}`);
-    process.exitCode = 2;
-    return;
-  }
-  if (!parsed.url) {
-    out(`Could not find a server URL in the input. Expected something like http://192.168.1.20:${DEFAULT_PORT}/mcp (shown in ${SETTINGS_PATH}).`);
-    process.exitCode = 2;
-    return;
-  }
-  if (!parsed.token) {
-    out(`Could not find a bearer token in the input. Copy it from ${SETTINGS_PATH} and run:\n  /expocut:connect ${parsed.url} <Bearer Token>`);
-    process.exitCode = 2;
-    return;
-  }
-  if (process.env.EXPOCUT_MCP_URL && process.env.EXPOCUT_MCP_TOKEN) {
-    out('Note: EXPOCUT_MCP_URL / EXPOCUT_MCP_TOKEN are set in the environment and take precedence over the saved file.');
-  }
-
-  try {
-    const s = await handshake(parsed.url, parsed.token);
-    await saveConfig({ url: s.url, token: parsed.token });
-    const name = [s.serverInfo?.name, s.serverInfo?.version].filter(Boolean).join(' ') || 'ExpoCut';
-    let count = '';
-    try {
-      const up = new Upstream();
-      up.session = s;
-      const list = await up.request('tools/list', {}, { timeoutMs: LIST_TIMEOUT_MS });
-      if (Array.isArray(list?.tools)) count = `, ${list.tools.length} tools available`;
-    } catch {
-      /* optional */
-    }
-    out(`Connected to ${name} at ${s.url}${count}.\nSaved to ${configPath()}.\nClaude Code refreshes the ExpoCut tools automatically; if they do not appear within a few seconds, run /mcp and reconnect "expocut", or restart Claude Code.`);
-  } catch (e) {
-    if (e.kind === 'unauthorized') {
-      out(`${explainError(e)}\nNothing was saved.`);
-      process.exitCode = 1;
-      return;
-    }
-    if (e.kind === 'unreachable') {
-      await saveConfig({ url: parsed.url, token: parsed.token });
-      out(`Saved ${parsed.url} to ${configPath()}, but it is not answering right now.\n${unreachableHelp(parsed.url)}\nThe bridge retries on every tool call and will also look for the phone on the local subnet if its address changed.`);
-      process.exitCode = 1;
-      return;
-    }
-    out(`Could not connect: ${e.message}\nNothing was saved.`);
-    process.exitCode = 1;
-  }
 }
 
 async function cliStatus() {
@@ -797,11 +648,14 @@ async function cliStatus() {
 }
 
 async function cliDiscover(args) {
-  const save = args.includes('--save');
   const portArg = args[args.indexOf('--port') + 1];
-  const tokenArg = args[args.indexOf('--token') + 1];
-  const cfg = await loadConfig();
-  const token = (args.includes('--token') && tokenArg) || cfg?.token || null;
+  let cfg = null;
+  try {
+    cfg = loadConfig();
+  } catch {
+    /* fingerprint only */
+  }
+  const token = cfg?.token ?? null;
   const port = (args.includes('--port') && Number(portArg)) || (cfg ? Number(new URL(cfg.url).port) : 0) || DEFAULT_PORT;
   const hosts = candidateHosts();
   if (!hosts.length) {
@@ -810,7 +664,7 @@ async function cliDiscover(args) {
     return;
   }
   const subnets = [...new Set(hosts.map((h) => h.split(':')[0].split('.').slice(0, 3).join('.') + '.0/24'))];
-  out(`Scanning ${subnets.join(', ')} on port ${port} for ExpoCut${token ? '' : ' (no token saved: will only fingerprint)'}…`);
+  out(`Scanning ${subnets.join(', ')} on port ${port} for ExpoCut${token ? '' : ' (no token configured: will only fingerprint)'}…`);
   const found = await discover({ token, port, onMatch: (url) => out(`  ExpoCut-like server at ${url}`) });
   if (!found) {
     out(`No ExpoCut server found. Make sure ${SETTINGS_PATH} is enabled and the phone is on the same Wi-Fi.`);
@@ -819,39 +673,20 @@ async function cliDiscover(args) {
   }
   if (found.session) {
     out(`Found ${[found.serverInfo?.name, found.serverInfo?.version].filter(Boolean).join(' ') || 'ExpoCut'} at ${found.url} (token accepted).`);
-    if (save && token) {
-      await saveConfig({ url: found.url, token });
-      out(`Saved to ${configPath()}.`);
-    }
   } else {
-    out(`Found an ExpoCut server at ${found.url}. Run /expocut:connect ${found.url} <Bearer Token> to pair it.`);
+    out(`Found an ExpoCut server at ${found.url}. Use it as the Server URL in the plugin settings.`);
   }
 }
 
-async function cliDisconnect() {
-  await clearConfig();
-  out(`Removed ${configPath()} and the cached tool list. Claude Code will show only expocut_connection until you run /expocut:connect again.`);
-}
-
 async function main(argv) {
-  const report = argv.includes('--report');
-  await run(argv.filter((a) => a !== '--report'));
-  if (report) process.exitCode = 0;
-}
-
-async function run(argv) {
   const [cmd = 'serve', ...rest] = argv;
   switch (cmd) {
     case 'serve':
       return serve();
-    case 'connect':
-      return cliConnect(rest);
     case 'status':
       return cliStatus();
     case 'discover':
       return cliDiscover(rest);
-    case 'disconnect':
-      return cliDisconnect();
     case 'help':
     case '--help':
     case '-h':

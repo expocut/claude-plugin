@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "expocut",
   "display_name": "ExpoCut",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Edit videos on your phone from Claude: connects to the ExpoCut editor over local Wi-Fi with 260+ MCP tools to build, review and export videos.",
   "long_description": "ExpoCut is a mobile video editor with an MCP server built in. This extension runs a small bridge on your computer that forwards every tool call to the app on your phone over your local Wi-Fi. Nothing goes through the cloud: edits land live on the timeline where you can undo them.\n\nSetup: in ExpoCut open Settings → AI Agent (MCP Server), turn it on, then paste the Server URL and Bearer Token into this extension's settings. The bridge re-finds the phone on your subnet when its address changes and keeps the tool list available while the phone is asleep.\n\nTools cover projects, clips, keyframes, masks, text animations, effects, shaders, LUT and CDL grading, stems and ducking, on-device voiceover and captions, Lottie / FCPXML / .mogrt import, and export to MP4.",
   "author": {
