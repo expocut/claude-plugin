@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Official ExpoCut plugins for Claude Code",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "repository": "https://github.com/expocut/claude-plugin"
   },
   "plugins": [
@@ -14,12 +14,12 @@
       "name": "expocut",
       "source": "./plugins/expocut",
       "description": "Connect Claude Code to the ExpoCut video editor on your phone over local Wi-Fi: 260+ MCP tools to build, review and export videos, plus ExpoCut's editing skills.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "ExpoCut",
         "url": "https://expocut.com"
       },
-      "homepage": "https://expocut.com/mcp.html",
+      "homepage": "https://expocut.com/claude-plugin.html",
       "category": "productivity",
       "keywords": [
         "expocut",

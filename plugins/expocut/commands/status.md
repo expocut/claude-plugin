@@ -1,6 +1,6 @@
 ---
 description: Show whether Claude Code can reach ExpoCut on your phone right now
-allowed-tools: Bash(node:*)
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs":*)
 ---
 # ExpoCut connection status
 

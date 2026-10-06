@@ -8,9 +8,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 
-import { normalizeUrl, parseConnectInput, CONNECTION_TOOL } from '../expocut-mcp-bridge.mjs';
+import { normalizeUrl, parseConnectInput, CONNECTION_TOOL } from '../plugins/expocut/bridge/expocut-mcp-bridge.mjs';
 
-const BRIDGE = join(dirname(fileURLToPath(import.meta.url)), '..', 'expocut-mcp-bridge.mjs');
+const BRIDGE = join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'expocut', 'bridge', 'expocut-mcp-bridge.mjs');
 const TOKEN = 'fd971edc9f4dd9a8fefed9b9';
 const DEAD_URL = 'http://127.0.0.1:1/mcp';
 

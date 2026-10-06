@@ -1,6 +1,6 @@
 ---
 description: Forget the saved ExpoCut address and token on this computer
-allowed-tools: Bash(node:*)
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs":*)
 ---
 # Disconnect from ExpoCut
 

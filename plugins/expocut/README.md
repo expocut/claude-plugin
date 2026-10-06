@@ -3,7 +3,7 @@
 Connects Claude Code to the MCP server built into the [ExpoCut](https://expocut.com)
 video editor on your phone or tablet, over your local Wi-Fi. Once paired, Claude
 Code can build, review and export videos with ExpoCut's 260+ MCP tools, and the
-17 bundled `expocut-*` skills teach it the editing workflows, each with a
+18 bundled `expocut-*` skills teach it the editing workflows, each with a
 `references/tools.md` of exact tool signatures generated from the app.
 
 ## Install
@@ -99,7 +99,7 @@ claude mcp add --transport http expocut http://<phone-ip>:7333/mcp \
 ## Development
 
 ```bash
-node --test bridge/test/*.test.mjs  # unit + end-to-end tests against a fake phone
+npm test --prefix ../..            # unit + end-to-end tests against a fake phone (tests/ at the repo root)
 claude --plugin-dir .              # try the plugin from this folder
 claude plugin validate .           # manifest check
 node bridge/expocut-mcp-bridge.mjs status

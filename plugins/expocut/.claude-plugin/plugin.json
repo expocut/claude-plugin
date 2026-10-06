@@ -1,12 +1,12 @@
 {
   "name": "expocut",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Connect Claude Code to the ExpoCut video editor on your phone over local Wi-Fi: 260+ MCP tools to build, review and export videos, plus ExpoCut's editing skills.",
   "author": {
     "name": "ExpoCut",
     "url": "https://expocut.com"
   },
-  "homepage": "https://expocut.com/mcp.html",
+  "homepage": "https://expocut.com/claude-plugin.html",
   "license": "MIT",
   "keywords": [
     "expocut",

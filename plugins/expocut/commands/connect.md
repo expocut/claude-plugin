@@ -1,7 +1,7 @@
 ---
 description: Connect Claude Code to ExpoCut on your phone (paste the Server URL and Bearer Token from ExpoCut → Settings → AI Agent)
 argument-hint: <server-url> <token>
-allowed-tools: Bash(node:*)
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs":*)
 ---
 # Connect to ExpoCut
 
