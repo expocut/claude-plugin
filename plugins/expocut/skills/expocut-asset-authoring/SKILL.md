@@ -44,7 +44,7 @@ Quotas: 50 register calls per app session, 10 per rolling minute, and per instal
 
 Ids: every asset id must match `^(ai|user)\.[a-z0-9-]{1,48}$`; use `ai.` for ids you mint (`ai.brand-teal`, `ai.soft-pulse`). Uppercase, spaces, underscores and dots after the prefix are rejected with `InvalidId`.
 
-Error codes you will see in `error`: `Disabled` (compile flag), `PermissionDenied` (tier too low), `InvalidId`, `InvalidSpec`, `AlreadyExists` (FX only; pass `overwriteIfExists: true`), `NotFound`, `EvalFailed` (dry-run expression), `ProbeFailed` (shader compile, NaN LUT, empty mask), `PersistFailed`, `DeleteFailed`, `OverQuota`, `RateLimited`.
+Error codes you will see in `error`: `Disabled` (compile flag), `PermissionDenied` (tier too low), `InvalidId`, `InvalidSpec`, `AlreadyExists` (FX only; set `overwriteIfExists: true`), `NotFound`, `EvalFailed` (dry-run expression), `ProbeFailed` (shader compile, NaN LUT, empty mask), `PersistFailed`, `DeleteFailed`, `OverQuota`, `RateLimited`.
 
 Persistence: `persist: false` (default) keeps the asset in memory for this app run; `persist: true` writes a JSON file under the app's Documents folder (`customFx/`, `customLuts/`, and the border and mask stores). Delete tools remove the in-memory copy; add `alsoFromDisk: true` to remove the file as well.
 

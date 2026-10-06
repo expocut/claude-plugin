@@ -32,7 +32,7 @@ You are the typographer for an ExpoCut project. Every call below edits the user'
 
 ## Core workflow
 
-1. Add the layer. add_text_layer { text: "STOP SCROLLING", fontFamily: "din-alternate", textTransform: "uppercase", textAutoFit: { maxSize: 80, minSize: 24, maxLines: 1 }, verticalAnchor: "center", startTime: 0.5, duration: 3 }. Defaults: fullWidth true, textAlign center, duration 3 s. verticalAnchor top/center/bottom picks y (about 12 / centred / 86 percent); pass fullWidth: false with x and y for a hand-placed block.
+1. Add the layer. add_text_layer { text: "STOP SCROLLING", fontFamily: "din-alternate", textTransform: "uppercase", textAutoFit: { maxSize: 80, minSize: 24, maxLines: 1 }, verticalAnchor: "center", startTime: 0.5, duration: 3 }. Defaults: fullWidth true, textAlign center, duration 3 s. verticalAnchor top/center/bottom picks y (about 12 / centred / 86 percent); set fullWidth: false with x and y for a hand-placed block.
 2. Pick the look. set_text_style { layerId: "text_…", styleId: "title-impact" } then set_text_effect { layerId: "text_…", effectId: "glow-neon-pink" }. Refine with update_text { layerId: "text_…", fontSize: 44, letterSpacing: 2, textColor: "#FFFFFF" } and set_text_font { layerId: "text_…", fontFamily: "futura" }. A style or effect is baked into concrete fields (textColor, textStrokeColor, textShadow*, textBg*, textGradient*) at apply time, so apply the preset first and override after.
 3. Optional backdrop silhouette. set_text_shade { layerId: "text_…", shapeId: "highlighter", opacity: 0.9 }. Valid shapeId values (there is no list tool): rect, brush, rough, swipe, tape, banner, angled, cloud, speech, starburst, ticket, arrowRight, arrowLeft, pennant, highlighter, wave, stamp, cornerCut. shapeId: null clears.
 4. Animate. set_text_animation { layerId: "text_…", inId: "in-fade-up", inDurationSec: 0.4, outId: "out-fade", outDurationSec: 0.3, loopId: "loop-breathe", loopSpeed: 1 }. Each slot is optional; null clears it. Durations are seconds (stored as ms internally). Per-character presets obey set_text_animation_range { layerId: "text_…", start: 0.5, end: 1 } (fractions of the glyph count).
@@ -75,7 +75,7 @@ Full grouped catalog with per-character and popular flags: references/text-anima
 
 ## Captions from audio (the transcript layer)
 
-add_caption_layer_from_audio { uri: "/…/voice.m4a", language: "en", modelSize: "base", startTime: 2, x: 10, y: 75 } (uri is a file:// or absolute path to an m4a/mp3/wav/aac file) transcribes on-device and creates a transcript layer whose duration runs to the last segment. Segment times (startMs/endMs) are relative to the layer's startTime, so pass the same startTime you gave the narration audio layer.
+add_caption_layer_from_audio { uri: "/…/voice.m4a", language: "en", modelSize: "base", startTime: 2, x: 10, y: 75 } (uri is a file:// or absolute path to an m4a/mp3/wav/aac file) transcribes on-device and creates a transcript layer whose duration runs to the last segment. Segment times (startMs/endMs) are relative to the layer's startTime, so give it the same startTime you gave the narration audio layer.
 
 What the tool does not do: the canvas and the export only draw a transcript layer that also has textAnimationStyleId (a transcript style) and textAnimationWords (word timings). The app's Transcript panel fills those in when the user taps Apply; through MCP you set them yourself:
 
@@ -94,7 +94,7 @@ Caption spec that performs: 1-3 word segments held 600-900 ms, heavy sans in cap
 - RTL faces from list_fonts { source: "rtl" }: geeza, al-nile, damascus, noto-naskh, nadeem (Arabic); noto-nastaliq, jameel-noori (Urdu). Direction auto-detects from the text; call set_text_writing_direction { layerId: "text_…", direction: "rtl" } only when mixed content is mis-detected.
 - Keep letterSpacing at 0 for Arabic-script text; tracking breaks letter joining.
 - Curved text on connected scripts renders as one shaped run bent along the path (Latin renders glyph by glyph). Hebrew works glyph by glyph on paths; skip niqqud.
-- RTL lower thirds: the five urdu-* presets (trend) and the twelve fx-urdu-* / fx-arabic-* presets; pass Urdu/Arabic strings in lines.
+- RTL lower thirds: the five urdu-* presets (trend) and the twelve fx-urdu-* / fx-arabic-* presets; use Urdu/Arabic strings in lines.
 
 ## Recipes
 
@@ -149,7 +149,7 @@ Whole-text entrances and exits bake into the export; per-character presets on me
 - textStyleId and textEffectId are bookkeeping; only the baked fields render. Applying a style after update_text overwrites the overlapping fields (colour, weight, case, tracking), so preset first, overrides second.
 - set_text_font accepts any string (treated as a Google font, flagged bundled: false in the response). Prefer list_fonts ids: a runtime font that fails to load falls back to the system face in the export.
 - New layers always land on top (trackIndex 0). Put a plate under a title with reorder_layer { layerId: "shape_…", position: "back" } or add the plate first.
-- The transcript layer default position is x 50 / y 80 with an 80-percent-wide box, so half of it starts off the right edge. Pass x: 10 or set textFullWidth: true with position x 0.
+- The transcript layer default position is x 50 / y 80 with an 80-percent-wide box, so half of it starts off the right edge. Set x: 10 or set textFullWidth: true with position x 0.
 - Transcript layers render nothing until textAnimationStyleId and textAnimationWords are set (see above). transcript ids look like transcript_….
 - set_text_style_runs, set_text_shade, set_text_path, set_text_media_fill, font features and variations refuse non-text layers (transcript and lowerthird included).
 - Lower-third text is drawn from lowerThirdConfig; set_text_font/style/effect accept the layer but do not change what it draws. Use update_widget_config.

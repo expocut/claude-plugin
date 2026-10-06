@@ -719,6 +719,9 @@ const USAGE = `ExpoCut MCP bridge ${VERSION}
   disconnect              forget the saved connection
   serve                   run as a stdio MCP server (what Claude Code launches)
 
+  --report                with connect/status/discover/disconnect: always exit 0, so a
+                          slash command can relay the message instead of failing
+
 Find the Server URL and Bearer Token in ${SETTINGS_PATH}.
 Environment: EXPOCUT_MCP_URL + EXPOCUT_MCP_TOKEN override the saved file;
 EXPOCUT_CONFIG_DIR changes where it is stored (default ~/.expocut).`;
@@ -831,6 +834,12 @@ async function cliDisconnect() {
 }
 
 async function main(argv) {
+  const report = argv.includes('--report');
+  await run(argv.filter((a) => a !== '--report'));
+  if (report) process.exitCode = 0;
+}
+
+async function run(argv) {
   const [cmd = 'serve', ...rest] = argv;
   switch (cmd) {
     case 'serve':

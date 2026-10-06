@@ -363,6 +363,14 @@ test('status, discover and disconnect CLI round-trip', async () => {
     assert.equal(r.code, 1);
     assert.match(r.stdout, /not connected to Claude Code yet/);
 
+    // --report is what the slash commands pass: same message, exit 0
+    r = await runCli(['status', '--report'], env);
+    assert.equal(r.code, 0);
+    assert.match(r.stdout, /not connected to Claude Code yet/);
+    r = await runCli(['connect', '--report'], env);
+    assert.equal(r.code, 0);
+    assert.match(r.stdout, /Nothing to connect to/);
+
     r = await runCli(['discover', '--token', TOKEN, '--save'], env);
     assert.equal(r.code, 0, r.stdout + r.stderr);
     assert.match(r.stdout, /token accepted/);

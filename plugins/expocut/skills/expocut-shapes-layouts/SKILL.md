@@ -65,7 +65,7 @@ add_brush_layer { brush: "brush-circles-02", fillColor: "#FFD93D", canvasRelativ
 
 add_svg_layer { svgContent: "<svg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'><circle cx='200' cy='200' r='180' fill='#FFD93D'/></svg>", x: 35, y: 40, scale: 1, startTime: 0, duration: 5 } stores sanitized markup on an image layer and rasterises it for export. Rules learned the hard way:
 
-- The layer renders in an aspect-fitted 150-point box (about a third of a phone-width canvas) multiplied by scale, and scale is applied about the box centre. The visual top-left is position + baseBox × (1 - scale) / 2 per axis, so compensate: for a target visual top-left (vx, vy) pass position (vx - uw × (1 - scale) / 2, vy - uh × (1 - scale) / 2) where uw/uh are the unscaled box size in canvas percent (read them from describe_canvas once at scale 1). Position keyframes carry the same constant offset.
+- The layer renders in an aspect-fitted 150-point box (about a third of a phone-width canvas) multiplied by scale, and scale is applied about the box centre. The visual top-left is position + baseBox × (1 - scale) / 2 per axis, so compensate: for a target visual top-left (vx, vy) use position (vx - uw × (1 - scale) / 2, vy - uh × (1 - scale) / 2) where uw/uh are the unscaled box size in canvas percent (read them from describe_canvas once at scale 1). Position keyframes carry the same constant offset.
 - Sanitizer strips scripts, event handlers, remote references and embedded raster (<image href="data:…"> comes back empty). Use add_image_layer for bitmaps. No <filter>; fake glows with radialGradient fills.
 - Give every gradient a unique id across all SVGs in the project (plateG, pillG …). Shared ids collide in the native export and the fill drops out.
 - <tspan> children each centre independently at the parent x; use separate <text> elements with absolute x for multi-colour lines.
@@ -120,7 +120,7 @@ set_layer_border { layerId: "shape_…", enabled: true, width: 2, color: "#FFD93
 
 ## Pitfalls
 
-- Pass both canvasRelativeWidth and canvasRelativeHeight; one alone is ignored and the shape falls back to the 150-point box.
+- Set both canvasRelativeWidth and canvasRelativeHeight; one alone is ignored and the shape falls back to the 150-point box.
 - stretchToCanvas draws full-bleed on the canvas, but some native encoders have rendered such layers at their unstretched size (black background, offset block). If an exported background comes out wrong, size it explicitly instead: canvasRelativeWidth 104, canvasRelativeHeight 103, position x -2, y -1.5, so the edges bleed off-frame. Verify with capture_export_frame { timeSec }.
 - set_shape_fill switches the whole fill: choosing "solid" drops a mesh, choosing "mesh" drops a media fill. gradient needs 2 or more colours; texture and mesh ids are validated; image/video needs mediaUri.
 - opacity in set_shape_fill and set_shape_outline is the shape's own opacity (shapeConfig.opacity), separate from the layer opacity in update_layer.

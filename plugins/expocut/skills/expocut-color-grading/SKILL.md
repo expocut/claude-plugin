@@ -15,7 +15,7 @@ You are the colorist. Every tool below writes a field on a layer (`colorAdjust`,
 
 ## When to use / hand off
 
-- Colour correction, looks, LUTs, CDL, local light zones, a reel-wide grade pass, chroma-key setup, export quality for colour: this skill.
+- Colour correction, looks, LUTs, CDL, local light zones, a reel-wide grade, chroma-key setup, export quality for colour: this skill.
 - Film grain, halation, vignette, CRT, cartoon, glow, light leaks: `expocut-fx-looks` (they are shader filters, a different pipeline).
 - Colour that changes over time (`color.saturation`, `color.brightness`, `lut.id` keyframes): `expocut-motion-graphics`.
 - Blend modes, adjustment layers, track mattes, masks after the key: `expocut-compositing`.
@@ -25,7 +25,7 @@ You are the colorist. Every tool below writes a field on a layer (`colorAdjust`,
 
 1. `get_active_project {}` then `list_layers {}` to get the real layer ids (`video0`, `image1`, ...) and their timing. Only image and video layers take a grade; shapes accept `set_layer_color_adjust` only.
 2. Ask one question if you cannot see the answer: is there a reference look, and is the footage skin-heavy? Skin breaks first under saturation and strong LUTs.
-3. `save_history_checkpoint { label: "before grade" }` so one `undo {}` reverts the whole pass.
+3. `save_history_checkpoint { label: "before grade" }` so one `undo {}` reverts the whole grade.
 4. `capture_canvas { timeSec: 2 }` for a baseline. `describe_canvas` is cheaper but reports geometry only, never colour.
 5. Find LUT ids before you use one: built-ins are `warm`, `cool`, `cinematic`, `vintage`, `bw`, `noir`; everything else comes from `lut_list_custom { author: "any" }` (user-imported `.cube` files, CDN downloads with `cdn-` ids, agent-registered `ai.` ids). There is no bundled LUT list tool.
 
@@ -39,7 +39,7 @@ You are the colorist. Every tool below writes a field on a layer (`colorAdjust`,
 | `set_layer_filter` | `filterId` | One preset filter from the 134 in `references/filters-and-luts.md` (`cin-teal-orange`, `port-soft-skin`, `bw-classic` ...), `intensity` 0..1. Not validated; a typo is a silent no-op. `filterId: null` clears. |
 | `apply_global_color_grade` | `lut` + `colorAdjust` on every video/image layer overlapping [`startSec`, `endSec`] | `lutId`, `lutIntensity` 0..1, `hue`, `saturation`, `brightness`, `intensity` (same offset scale as `set_layer_color_adjust`), `includeImages`, `includeVideos`. Returns `patchedIds`. It does not carry CDL, contrast or temperature, and there is no `scope` or `params` object. |
 | `add_light_region` | appends to `lutRegions` | `shape` area/gradient/radial/object/trident, `rect` {x,y,width,height} in 0..1 layer space, `feather` px at 1080p, `invert`, `rotation` degrees, `expansion` px, `intensity` 0..1, `label`, `tone` {exposure, contrast, brightness, highlights, shadows, whites, blacks, vibrance, saturation}, `filterId` + `filterIntensity` 0..1. Ranges in the reference file. |
-| `list_light_regions` / `clear_light_regions` | reads / removes `lutRegions` | `clear_light_regions { layerId }` wipes the stack; pass `regionId` (from the list) to remove one. |
+| `list_light_regions` / `clear_light_regions` | reads / removes `lutRegions` | `clear_light_regions { layerId }` wipes the stack; add `regionId` (from the list) to remove one. |
 | `set_layer_chroma_key` | `chromaKey` | `keyColor` hex (default `#00FF00`), `similarity` 0..1 (default 0.4), `smoothness` 0..1 (default 0.1), `spill` 0..1 (default 0.5), `enabled`. Video layers. |
 | `bake_cdl_to_cube` | nothing (returns text) | `cdl` {slope, offset, power, saturation}, `size` 17/33/65 (default 33), `title`, `clipOutput`, `allowNegative`. Returns `{ cube, size }`. |
 | `write_cdl` | nothing (returns XML) | `entries: [{ cdl, id? }]`, `kind` cdl/ccc/cdl-list. For the user's Resolve/Premiere hand-off. |
@@ -74,7 +74,7 @@ Start from these, then tune by eye. All CDL triplets are [r, g, b].
 
 ## Recipes
 
-Recipe A - reel-wide cinematic pass (three clips, 0 to 24 s).
+Recipe A - reel-wide cinematic grade (three clips, 0 to 24 s).
 
 ```
 save_history_checkpoint { label: "pre-grade" }
@@ -119,7 +119,7 @@ list_light_regions { layerId: "video1" }
 capture_canvas { timeSec: 2 }
 ```
 
-`radial` is seeded with `invert: true` (the surroundings are graded, which makes a subject pop); pass `invert: false` when the region itself should brighten.
+`radial` is seeded with `invert: true` (the surroundings are graded, which makes a subject pop); set `invert: false` when the region itself should brighten.
 
 Recipe E - green screen, then hand off.
 

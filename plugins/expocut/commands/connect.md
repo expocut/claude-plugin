@@ -7,7 +7,7 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs":*
 
 Bridge output:
 
-!`node "${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs" connect '$ARGUMENTS'`
+!`node "${CLAUDE_PLUGIN_ROOT}/bridge/expocut-mcp-bridge.mjs" connect --report '$ARGUMENTS'`
 
 Relay the bridge output above to the user in plain words:
 
